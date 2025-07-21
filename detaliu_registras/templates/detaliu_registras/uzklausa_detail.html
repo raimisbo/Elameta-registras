@@ -1,0 +1,189 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="UTF-8">
+    <title>Užklausos detalės</title>
+    <link rel="stylesheet" href="{% static 'css/uzklausos_detales.css' %}">
+</head>
+<body>
+    <div class="header">
+        <h1>Užklausos detalės</h1>
+        <div class="nav-links">
+            <a href="{% url 'detaliu_registras:index' %}">← Grįžti į pradinį puslapį</a>
+            <a href="{% url 'detaliu_registras:uzklausa_list' %}">Visi užklausos</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="blokas-1">
+            <h3>Pagrindinė informacija</h3>
+            <div class="info-row">
+                <span class="info-label">Kliento pavadinimas:</span>
+                <span class="info-value">{{ uzklausa.klientas.vardas }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Projekto pavadinimas:</span>
+                <span class="info-value">{{ uzklausa.projektas.pavadinimas }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Detalės pavadinimas:</span>
+                <span class="info-value">{{ uzklausa.detale.pavadinimas }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Brėžinio nr.:</span>
+                <span class="info-value">{{ uzklausa.detale.brezinio_nr }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Užklausos data:</span>
+                <span class="info-value">{{ uzklausa.projektas.formatted_uzklausos_data }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Pasiūlymo data:</span>
+                <span class="info-value">{{ uzklausa.projektas.formatted_pasiulymo_data }}</span>
+            </div>
+        </div>
+
+        <div class="blokas-2">
+            <h3>Techninė informacija</h3>
+            <div class="info-row">
+                <span class="info-label">Paslauga:</span>
+                <span class="info-value">
+                    {% for danga in uzklausa.detale.danga.all %}
+                        {{ danga.pavadinimas }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        N/A
+                    {% endfor %}
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Standartas:</span>
+                <span class="info-value">{{ uzklausa.detale.standartas|default:"N/A" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Metinis kiekis:</span>
+                <span class="info-value">{{ uzklausa.detale.kiekis_metinis|default:"N/A" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Mėnesinis kiekis:</span>
+                <span class="info-value">{{ uzklausa.detale.kiekis_menesis|default:"N/A" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Partijos kiekis:</span>
+                <span class="info-value">{{ uzklausa.detale.kiekis_partijai|default:"N/A" }}</span>
+            </div>
+        </div>
+
+        <div class="blokas-3">
+            <h3>Fiziniai parametrai</h3>
+            <div class="info-row">
+                <span class="info-label">Detalės plotas:</span>
+                <span class="info-value">{{ uzklausa.detale.plotas|default:"N/A" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Detalės svoris:</span>
+                <span class="info-value">{{ uzklausa.detale.svoris|default:"N/A" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Kabinimo tipas:</span>
+                <span class="info-value">{{ uzklausa.detale.kabinimo_tipas|default:"N/A" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Kabinimas XYZ:</span>
+                <span class="info-value">{{ uzklausa.detale.kabinimas_xyz|default:"N/A" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Detalės kiekis rėme:</span>
+                <span class="info-value">{{ uzklausa.detale.kiekis_reme|default:"N/A" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Faktinis kiekis rėme:</span>
+                <span class="info-value">
+                    <span class="{% if uzklausa.detale.faktinis_kiekis_reme != uzklausa.detale.kiekis_reme %}mirksintis{% endif %}">
+                        {{ uzklausa.detale.faktinis_kiekis_reme|default:"N/A" }}
+                    </span>
+                </span>
+            </div>
+        </div>
+
+        <div class="blokas-4">
+            <h3>Kainos</h3>
+            <div class="actions">
+                <a href="{% url 'detaliu_registras:kaina_update' uzklausa_pk=uzklausa.id %}" class="btn">Keisti kainą</a>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Kaina</th>
+                        <th>Būsena</th>
+                        <th>Kainos kiekis</th>
+                        <th>Kainos matas</th>
+                        <th>Kiekis nuo</th>
+                        <th>Kiekis iki</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for kaina in uzklausa.detale.kainos.all %}
+                    <tr class="{% if kaina.busena == 'aktuali' %}aktuali{% elif kaina.busena == 'sena' %}sena{% endif %}">
+                        <td>{{ kaina.suma }} Eur</td>
+                        <td>{{ kaina.busena }}</td>
+                        <td>{{ kaina.fiksuotas_kiekis }}</td>
+                        <td>{{ kaina.kainos_matas }}</td>
+                        <td>{{ kaina.kiekis_nuo }}</td>
+                        <td>{{ kaina.kiekis_iki }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6">Kainų nėra</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="blokas-5">
+            <h3>Papildoma informacija</h3>
+            <div class="info-row">
+                <span class="info-label">Pakavimas:</span>
+                <span class="info-value">{{ uzklausa.detale.pakavimas|default:"N/A" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Nuoroda į brėžinį:</span>
+                <span class="info-value">
+                    {% if brėžinio_url %}
+                        <a href="{{ brėžinio_url }}" target="_blank">Peržiūrėti brėžinį</a>
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Nuoroda į pasiūlymą:</span>
+                <span class="info-value">
+                    {% if uzklausa.detale.nuoroda_pasiulymo %}
+                        <a href="{{ uzklausa.detale.nuoroda_pasiulymo }}" target="_blank">Peržiūrėti pasiūlymą</a>
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Pastabos:</span>
+                <span class="info-value">{{ uzklausa.detale.pastabos|default:"N/A" }}</span>
+            </div>
+
+            {% if brėžinio_url %}
+            <div class="image-container">
+                <p><strong>Brėžinys:</strong></p>
+                <img src="{{ brėžinio_url }}" alt="Brėžinio nuotrauka">
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="actions">
+        <a href="{% url 'detaliu_registras:kaina_update' uzklausa_pk=uzklausa.id %}" class="btn">Keisti kainą</a>
+        <a href="{% url 'detaliu_registras:index' %}" class="btn btn-secondary">Grįžti į pradinį puslapį</a>
+    </div>
+</body>
+</html>

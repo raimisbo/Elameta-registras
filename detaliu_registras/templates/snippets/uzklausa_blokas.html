@@ -1,6 +1,7 @@
+
 from pathlib import Path
 
-# Sukuriame turinį failui uzklausa_blokas.html
+<!--# Sukuriame turinį failui uzklausa_blokas.html-->
 template_content = """
 <div class="container">
     <div class="blokas-1">
@@ -101,7 +102,7 @@ template_content = """
 </div>
 """
 
-# Išsaugome failą
+<!--# Išsaugome failą-->
 output_path = Path("/mnt/data/uzklausa_blokas.html")
 output_path.write_text(template_content.strip(), encoding="utf-8")
 

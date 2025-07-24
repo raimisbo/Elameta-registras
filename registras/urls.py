@@ -15,10 +15,17 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include  # Pridėkite include importą
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('detaliu_registras/', include('detaliu_registras.urls')),  # Įtrauk savo aplikacijos maršrutus
+    path('detaliu_registras/', include('detaliu_registras.urls')),
 ]
+
+# Aptarnauti static failus per development serverį (tik kai DEBUG = True)
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
 

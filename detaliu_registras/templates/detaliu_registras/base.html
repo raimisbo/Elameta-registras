@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Elameta Registras{% endblock %}</title>
+
+    <!-- Būtini admin stiliai -->
+    <link rel="stylesheet" href="{% static 'admin/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'admin/css/forms.css' %}">
+    <link rel="stylesheet" href="{% static 'admin/css/widgets.css' %}">
+<!--    <link rel="stylesheet" href="{% static 'admin/css/admin.css' %}">-->
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="change-form">
+
+<div id="container">
+    {% block content %}{% endblock %}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

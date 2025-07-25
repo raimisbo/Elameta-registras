@@ -273,7 +273,7 @@
 
         var ctx = document.getElementById('detaliuGrafikas').getContext('2d');
         var klientuDuomenys = {{ klientu_duomenys_json|safe }};
-        
+
         function getRandomColor() {
             var letters = '0123456789ABCDEF';
             var color = '#';
@@ -297,7 +297,7 @@
             backgroundColors.push(color + '80');
             borderColors.push(color);
         }
-        
+
         var chart = new Chart(ctx, {
             type: 'pie',
             data: {

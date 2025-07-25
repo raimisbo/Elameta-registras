@@ -1,12 +1,13 @@
 {% extends "detaliu_registras/base.html" %}
 {% load static %}
+{% load form_filters %}
 
 {% block title %}Įvesti užklausą{% endblock %}
 
 {% block extra_css %}
 <style>
     .form-container {
-        max-width: 800px;
+        max-width: 1000px;
         margin: 20px auto;
         padding: 20px;
         background-color: #f8f9fa;
@@ -30,9 +31,11 @@
         display: flex;
         gap: 20px;
         margin-bottom: 15px;
+        flex-wrap: wrap;
     }
     .form-field {
-        flex: 1;
+        flex: 1 1 48%;
+        min-width: 250px;
     }
     .form-field label {
         display: block;
@@ -96,6 +99,29 @@
         color: #666;
         margin-top: 5px;
     }
+    .filter-input {
+        padding: 8px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    ul#id_danga {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: block;
+    }
+    ul#id_danga li {
+        margin-bottom: 6px;
+        word-break: break-word;
+        white-space: normal;
+    }
+    ul#id_danga li label {
+        display: inline-block;
+        max-width: 100%;
+    }
 </style>
 {% endblock %}
 
@@ -114,21 +140,20 @@
     <form method="post">
         {% csrf_token %}
 
+        <!-- Kliento informacija -->
         <div class="form-section">
             <h3>Kliento informacija</h3>
             <div class="form-row">
                 <div class="form-field">
                     <label for="{{ form.existing_klientas.id_for_label }}">{{ form.existing_klientas.label }}</label>
-                    {{ form.existing_klientas }}
+                    {{ form.existing_klientas|add_class:"filter-input" }}
                     {% if form.existing_klientas.errors %}
                         <div class="error-message">{{ form.existing_klientas.errors }}</div>
                     {% endif %}
                 </div>
-            </div>
-            <div class="form-row">
                 <div class="form-field">
                     <label for="{{ form.new_klientas_vardas.id_for_label }}">{{ form.new_klientas_vardas.label }}</label>
-                    {{ form.new_klientas_vardas }}
+                    {{ form.new_klientas_vardas|add_class:"filter-input" }}
                     {% if form.new_klientas_vardas.errors %}
                         <div class="error-message">{{ form.new_klientas_vardas.errors }}</div>
                     {% endif %}
@@ -137,30 +162,73 @@
             </div>
         </div>
 
+        <!-- Projekto informacija -->
         <div class="form-section">
             <h3>Projekto informacija</h3>
             <div class="form-row">
                 <div class="form-field">
                     <label for="{{ form.projekto_pavadinimas.id_for_label }}">{{ form.projekto_pavadinimas.label }}</label>
-                    {{ form.projekto_pavadinimas }}
+                    {{ form.projekto_pavadinimas|add_class:"filter-input" }}
                     {% if form.projekto_pavadinimas.errors %}
                         <div class="error-message">{{ form.projekto_pavadinimas.errors }}</div>
                     {% endif %}
                 </div>
-            </div>
-            <div class="form-row">
                 <div class="form-field">
                     <label for="{{ form.uzklausos_data.id_for_label }}">{{ form.uzklausos_data.label }}</label>
-                    {{ form.uzklausos_data }}
+                    {{ form.uzklausos_data|add_class:"filter-input" }}
                     {% if form.uzklausos_data.errors %}
                         <div class="error-message">{{ form.uzklausos_data.errors }}</div>
                     {% endif %}
                 </div>
                 <div class="form-field">
                     <label for="{{ form.pasiulymo_data.id_for_label }}">{{ form.pasiulymo_data.label }}</label>
-                    {{ form.pasiulymo_data }}
+                    {{ form.pasiulymo_data|add_class:"filter-input" }}
                     {% if form.pasiulymo_data.errors %}
                         <div class="error-message">{{ form.pasiulymo_data.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Detalės informacija -->
+        <div class="form-section">
+            <h3>Detalės informacija</h3>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="{{ form.detale_form.pavadinimas.id_for_label }}">Pavadinimas</label>
+                    {{ form.detale_form.pavadinimas|add_class:"filter-input" }}
+                    {% if form.detale_form.pavadinimas.errors %}
+                        <div class="error-message">{{ form.detale_form.pavadinimas.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-field">
+                    <label for="{{ form.detale_form.brezinio_nr.id_for_label }}">Brėžinio nr.</label>
+                    {{ form.detale_form.brezinio_nr|add_class:"filter-input" }}
+                    {% if form.detale_form.brezinio_nr.errors %}
+                        <div class="error-message">{{ form.detale_form.brezinio_nr.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-field">
+                    <label for="{{ form.detale_form.kiekis_reme.id_for_label }}">Kiekis rėme</label>
+                    {{ form.detale_form.kiekis_reme|add_class:"filter-input" }}
+                    {% if form.detale_form.kiekis_reme.errors %}
+                        <div class="error-message">{{ form.detale_form.kiekis_reme.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-field">
+                    <label for="{{ form.detale_form.pastabos.id_for_label }}">Pastabos</label>
+                    {{ form.detale_form.pastabos|add_class:"filter-input" }}
+                    {% if form.detale_form.pastabos.errors %}
+                        <div class="error-message">{{ form.detale_form.pastabos.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="{{ form.detale_form.danga.id_for_label }}">Danga</label>
+                    {{ form.detale_form.danga }}
+                    {% if form.detale_form.danga.errors %}
+                        <div class="error-message">{{ form.detale_form.danga.errors }}</div>
                     {% endif %}
                 </div>
             </div>

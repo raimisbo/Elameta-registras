@@ -30,17 +30,23 @@ class ProjektasForm(forms.ModelForm):
         }
 
 class DetaleForm(forms.ModelForm):
+    danga = forms.ModelMultipleChoiceField(
+        queryset=Danga.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label="Danga"
+    )
+
     class Meta:
         model = Detale
         fields = [
-            'pavadinimas', 'brezinio_nr', 'plotas', 'svoris', 
+            'pavadinimas', 'brezinio_nr', 'plotas', 'svoris',
             'kiekis_metinis', 'kiekis_menesis', 'kiekis_partijai',
             'ppap_dokumentai', 'danga', 'standartas', 'kabinimo_tipas',
             'kabinimas_xyz', 'kiekis_reme', 'faktinis_kiekis_reme',
             'pakavimas', 'nuoroda_brezinio', 'nuoroda_pasiulymo', 'pastabos'
         ]
         widgets = {
-            'danga': forms.CheckboxSelectMultiple(),
             'ppap_dokumentai': forms.Textarea(attrs={'rows': 3}),
             'pastabos': forms.Textarea(attrs={'rows': 3}),
             'faktinis_kiekis_reme': forms.NumberInput(attrs={'value': 0}),

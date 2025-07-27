@@ -10,9 +10,44 @@
     <link rel="stylesheet" href="{% static 'admin/css/base.css' %}">
     <link rel="stylesheet" href="{% static 'admin/css/forms.css' %}">
     <link rel="stylesheet" href="{% static 'admin/css/widgets.css' %}">
-<!--    <link rel="stylesheet" href="{% static 'admin/css/admin.css' %}">-->
 
-    {% block extra_css %}{% endblock %}
+    {% block extra_css %}
+    <style>
+        .filter-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            line-height: 1.4;
+            box-sizing: border-box;
+            height: auto;
+        }
+
+        .filter-input:focus {
+            border-color: #007BFF;
+            outline: none;
+            box-shadow: 0 0 4px rgba(0,123,255,0.3);
+        }
+
+        select.filter-input {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-color: white;
+            padding-right: 30px;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' width='24' viewBox='0 0 24 24'><path d='M7 10l5 5 5-5z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px 16px;
+        }
+
+        select.filter-input option {
+            padding: 5px;
+            line-height: 1.6;
+        }
+    </style>
+    {% endblock %}
 </head>
 <body class="change-form">
 

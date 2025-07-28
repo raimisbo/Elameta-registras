@@ -14,42 +14,35 @@ class UzklausaService:
     
     @staticmethod
     @transaction.atomic
-    def create_full_request(form_data):
-        """
-        Create a complete request with all related objects
-        This replaces the complex logic in views
-        """
+    def create_full_request(form_data, projektas_form, detale_form, kaina_form):
         try:
-            # Handle client creation or selection
             klientas = UzklausaService._get_or_create_klientas(form_data)
-            
-            # Create project
-            projektas = Projektas.objects.create(
-                klientas=klientas,
-                pavadinimas=form_data['projekto_pavadinimas'],
-                uzklausos_data=form_data['uzklausos_data'],
-                pasiulymo_data=form_data['pasiulymo_data']
-            )
-            
-            # Create detail (this would need more form_data fields)
-            detale = Detale.objects.create(
-                projektas=projektas,
-                # Add other fields as needed from form_data
-            )
-            
-            # Create the main request
+
+            projektas = projektas_form.save(commit=False)
+            projektas.klientas = klientas
+            projektas.save()
+
+            detale = detale_form.save(commit=False)
+            detale.projektas = projektas
+            detale.save()
+            detale_form.save_m2m()  # reikalinga ManyToMany laukui "danga"
+
+            kaina = kaina_form.save(commit=False)
+            kaina.detalė = detale
+            kaina.save()
+
             uzklausa = Uzklausa.objects.create(
                 klientas=klientas,
                 projektas=projektas,
-                detale=detale
+                detale=detale,
+                kaina=kaina
             )
-            
-            logger.info(f"Created request {uzklausa.id} for client {klientas.vardas}")
+
             return uzklausa
-            
+
         except Exception as e:
-            logger.error(f"Error creating full request: {e}")
-            raise ValidationError(f"Nepavyko sukurti užklausos: {e}")
+            logger.error(f"Klaida kuriant užklausą: {e}")
+            raise ValidationError([f"Nepavyko sukurti užklausos: {e}"])
     
     @staticmethod
     def _get_or_create_klientas(form_data):

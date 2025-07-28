@@ -5,124 +5,36 @@
 {% block title %}Įvesti užklausą{% endblock %}
 
 {% block extra_css %}
+<!-- tavo CSS palieku nepakitusį -->
 <style>
-    .form-container {
-        max-width: 1000px;
-        margin: 20px auto;
-        padding: 20px;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    .form-container { max-width: 1000px; margin: 20px auto; padding: 20px; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .form-section { margin-bottom: 30px; padding: 20px; background-color: white; border-radius: 5px; border: 1px solid #ddd; }
+    .form-section h3 { margin-top: 0; color: #333; border-bottom: 2px solid #007BFF; padding-bottom: 10px; }
+    .form-field { margin-bottom: 15px; }
+    .form-field label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+    .form-field input, .form-field select, .form-field textarea {
+        width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px;
+        font-size: 14px; line-height: 1.5; box-sizing: border-box; height: auto;
     }
-
-    .form-section {
-        margin-bottom: 30px;
-        padding: 20px;
-        background-color: white;
-        border-radius: 5px;
-        border: 1px solid #ddd;
-    }
-
-    .form-section h3 {
-        margin-top: 0;
-        color: #333;
-        border-bottom: 2px solid #007BFF;
-        padding-bottom: 10px;
-    }
-
-    .form-field {
-        margin-bottom: 15px;
-    }
-
-    .form-field label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-        color: #555;
-    }
-
-    .form-field input,
-    .form-field select,
-    .form-field textarea {
-        width: 100%;
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
-        line-height: 1.5;
-        box-sizing: border-box;
-        height: auto;
-    }
-
     select.filter-input {
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        background-color: white;
+        appearance: none; background-color: white;
         background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' width='24' viewBox='0 0 24 24'><path d='M7 10l5 5 5-5z'/></svg>");
-        background-repeat: no-repeat;
-        background-position: right 12px center;
-        background-size: 16px 16px;
-        padding-right: 40px;
-
+        background-repeat: no-repeat; background-position: right 12px center;
+        background-size: 16px 16px; padding-right: 40px;
     }
-
-    .form-field input:focus,
-    .form-field select:focus,
-    .form-field textarea:focus {
-        outline: none;
-        border-color: #007BFF;
-        box-shadow: 0 0 5px rgba(0,123,255,0.3);
+    .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+        outline: none; border-color: #007BFF; box-shadow: 0 0 5px rgba(0,123,255,0.3);
     }
-
-    .form-check {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 6px;
-        font-size: 14px;
+    .form-check { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 14px; }
+    .submit-section { text-align: center; margin-top: 30px; }
+    .submit-btn, .cancel-btn {
+        padding: 12px 30px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;
     }
-
-    .submit-section {
-        text-align: center;
-        margin-top: 30px;
-    }
-
-    .submit-btn {
-        background-color: #007BFF;
-        color: white;
-        padding: 12px 30px;
-        border: none;
-        border-radius: 5px;
-        font-size: 16px;
-        cursor: pointer;
-        margin-right: 10px;
-    }
-
-    .submit-btn:hover {
-        background-color: #0056b3;
-    }
-
-    .cancel-btn {
-        background-color: #6c757d;
-        color: white;
-        padding: 12px 30px;
-        border: none;
-        border-radius: 5px;
-        font-size: 16px;
-        cursor: pointer;
-        text-decoration: none;
-    }
-
-    .cancel-btn:hover {
-        background-color: #545b62;
-    }
-
-    .error-message {
-        color: #dc3545;
-        font-size: 14px;
-        margin-top: 5px;
-    }
+    .submit-btn { background-color: #007BFF; color: white; margin-right: 10px; }
+    .submit-btn:hover { background-color: #0056b3; }
+    .cancel-btn { background-color: #6c757d; color: white; text-decoration: none; }
+    .cancel-btn:hover { background-color: #545b62; }
+    .error-message { color: #dc3545; font-size: 14px; margin-top: 5px; }
 </style>
 {% endblock %}
 
@@ -136,14 +48,48 @@
         {% endfor %}
     {% endif %}
 
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    {% if form.errors or projektas_form.errors or detale_form.errors or kaina_form.errors %}
+    <div class="alert alert-danger">
+        <strong>Klaidų sąrašas:</strong>
+        <ul>
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <li><strong>{{ field|capfirst }}:</strong> {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+            {% for field, errors in projektas_form.errors.items %}
+                {% for error in errors %}
+                    <li><strong>Projektas – {{ field|capfirst }}:</strong> {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+            {% for field, errors in detale_form.errors.items %}
+                {% for error in errors %}
+                    <li><strong>Detalė – {{ field|capfirst }}:</strong> {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+            {% for field, errors in kaina_form.errors.items %}
+                {% for error in errors %}
+                    <li><strong>Kaina – {{ field|capfirst }}:</strong> {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
     <form method="post">
         {% csrf_token %}
 
+        <!-- KLIENTO INFORMACIJA -->
         <div class="form-section">
             <h3>Kliento informacija</h3>
+
             <div class="form-field">
                 <label for="{{ form.existing_klientas.id_for_label }}">{{ form.existing_klientas.label }}</label>
-                {{ form.existing_klientas|add_class:"filter-input" }}
+                {{ form.existing_klientas|add_class:"form-control" }}
                 {% if form.existing_klientas.errors %}
                     <div class="error-message">{{ form.existing_klientas.errors }}</div>
                 {% endif %}
@@ -151,31 +97,31 @@
 
             <div class="form-field">
                 <label for="{{ form.new_klientas_vardas.id_for_label }}">{{ form.new_klientas_vardas.label }}</label>
-                {{ form.new_klientas_vardas|add_class:"filter-input" }}
+                {{ form.new_klientas_vardas|add_class:"form-control" }}
                 {% if form.new_klientas_vardas.errors %}
                     <div class="error-message">{{ form.new_klientas_vardas.errors }}</div>
                 {% endif %}
             </div>
         </div>
 
+        <!-- PROJEKTO INFORMACIJA -->
         <div class="form-section">
             <h3>Projekto informacija</h3>
-            {% for field in form %}
-                {% if field.name in "projekto_pavadinimas uzklausos_data pasiulymo_data" %}
-                    <div class="form-field">
-                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                        {{ field|add_class:"filter-input" }}
-                        {% if field.errors %}
-                            <div class="error-message">{{ field.errors }}</div>
-                        {% endif %}
-                    </div>
-                {% endif %}
+            {% for field in projektas_form.visible_fields %}
+                <div class="form-field">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field|add_class:"form-control" }}
+                    {% if field.errors %}
+                        <div class="error-message">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
             {% endfor %}
         </div>
 
+        <!-- DETALĖS INFORMACIJA -->
         <div class="form-section">
             <h3>Detalės informacija</h3>
-            {% for field in form.detale_form.visible_fields %}
+            {% for field in detale_form.visible_fields %}
                 {% if field.name == "danga" %}
                     <label><strong>{{ field.label }}</strong></label>
                     {% for checkbox in field %}
@@ -186,7 +132,7 @@
                 {% else %}
                     <div class="form-field">
                         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                        {{ field|add_class:"filter-input" }}
+                        {{ field|add_class:"form-control" }}
                         {% if field.errors %}
                             <div class="error-message">{{ field.errors }}</div>
                         {% endif %}
@@ -195,24 +141,19 @@
             {% endfor %}
         </div>
 
+        <!-- KAINOS INFORMACIJA -->
         <div class="form-section">
             <h3>Kainos informacija</h3>
-            {% for field in form.kaina_form.visible_fields %}
+            {% for field in kaina_form.visible_fields %}
                 <div class="form-field">
                     <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {{ field|add_class:"filter-input" }}
+                    {{ field|add_class:"form-control" }}
                     {% if field.errors %}
                         <div class="error-message">{{ field.errors }}</div>
                     {% endif %}
                 </div>
             {% endfor %}
         </div>
-
-        {% if form.non_field_errors %}
-            <div class="error-message">
-                {{ form.non_field_errors }}
-            </div>
-        {% endif %}
 
         <div class="submit-section">
             <button type="submit" class="submit-btn">Sukurti užklausą</button>

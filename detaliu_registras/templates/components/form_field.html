@@ -1,0 +1,16 @@
+<div class="form-field">
+    <label for="{{ field.id_for_label }}">
+        {{ field.label }}
+    </label>
+    {{ field|add_class:"filter-input" }}
+
+    {% if field.help_text %}
+        <small class="form-text text-muted">{{ field.help_text }}</small>
+    {% endif %}
+
+    {% if field.errors %}
+        {% for error in field.errors %}
+            <div class="error-message">{{ error }}</div>
+        {% endfor %}
+    {% endif %}
+</div>

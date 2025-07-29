@@ -1,4 +1,4 @@
-# apps/detaliu_registras/templatetags/form_filters.py
+# detaliu_registras/templatetags/form_filters.py
 
 from django import template
 

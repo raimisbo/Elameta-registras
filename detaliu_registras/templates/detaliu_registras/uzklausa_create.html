@@ -110,7 +110,7 @@
             {% for field in projektas_form.visible_fields %}
                 <div class="form-field">
                     <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {{ field|add_class:"form-control" }}
+                    {{ field|add_class:"filter-input" }}
                     {% if field.errors %}
                         <div class="error-message">{{ field.errors }}</div>
                     {% endif %}

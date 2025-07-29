@@ -75,54 +75,25 @@ class KainaForm(forms.ModelForm):
 
 # Composite form for complex creation workflow
 class UzklausaCreationForm(forms.Form):
-    """
-    Composite form that handles the complex workflow of creating
-    Klientas -> Projektas -> Detale -> Uzklausa
-    This replaces the problematic IvestiUzklausaForm
-    """
-    # Client selection or creation
     existing_klientas = forms.ModelChoiceField(
         queryset=Klientas.objects.all(),
         required=False,
         label="Pasirinkti esamą klientą"
     )
     new_klientas_vardas = forms.CharField(
-        max_length=100, 
+        max_length=100,
         required=False,
         label="Arba įvesti naują klientą"
     )
-    
-    # Project data
-    projekto_pavadinimas = forms.CharField(max_length=255, label="Projekto pavadinimas")
-    uzklausos_data = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        label="Užklausos data"
-    )
-    pasiulymo_data = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        label="Pasiūlymo data"
-    )
-    klientas_form = KlientasForm()
-    projektas_form = ProjektasForm()
-    detale_form = DetaleForm()
-    kaina_form = KainaForm()
 
-    context = {
-        'klientas_form': klientas_form,
-        'projektas_form': projektas_form,
-        'detale_form': detale_form,
-        'kaina_form': kaina_form,
-    }
-    
     def clean(self):
         cleaned_data = super().clean()
-        existing_klientas = cleaned_data.get('existing_klientas')
-        new_klientas_vardas = cleaned_data.get('new_klientas_vardas')
-        
-        if not existing_klientas and not new_klientas_vardas:
-            raise forms.ValidationError("Pasirinkite klientą arba įveskite naują")
-            
-        if existing_klientas and new_klientas_vardas:
-            raise forms.ValidationError("Pasirinkite tik vieną variantą")
-            
+        existing = cleaned_data.get("existing_klientas")
+        new = cleaned_data.get("new_klientas_vardas")
+
+        if not existing and not new:
+            raise forms.ValidationError("Pasirinkite arba įveskite klientą.")
+        if existing and new:
+            raise forms.ValidationError("Pasirinkite tik vieną variantą.")
+
         return cleaned_data

@@ -29,13 +29,13 @@ class UzklausaService:
 
             kaina = kaina_form.save(commit=False)
             kaina.detalė = detale
+            kaina.busena = "aktuali"
             kaina.save()
 
             uzklausa = Uzklausa.objects.create(
                 klientas=klientas,
                 projektas=projektas,
                 detale=detale,
-                kaina=kaina
             )
 
             return uzklausa

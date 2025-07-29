@@ -90,7 +90,7 @@ class UzklausaCreateView(TemplateView):
         detale_form = DetaleForm(request.POST)
         kaina_form = KainaForm(request.POST)
 
-        if form.is_valid() and projektas_form.is_valid() and detale_form.is_valid() and kaina_form.is_valid():
+        if all([form.is_valid(), projektas_form.is_valid(), detale_form.is_valid(), kaina_form.is_valid()]):
             try:
                 uzklausa = UzklausaService.create_full_request(
                     form.cleaned_data,
@@ -101,10 +101,10 @@ class UzklausaCreateView(TemplateView):
                 messages.success(request, 'Užklausa sėkmingai sukurta')
                 return redirect('detaliu_registras:uzklausa_detail', pk=uzklausa.pk)
             except ValidationError as e:
-                messages.error(request, f'Klaida: {e}')
+                messages.error(request, f"Klaida: {e}")
         else:
-            if not (form.is_valid() and projektas_form.is_valid() and detale_form.is_valid() and kaina_form.is_valid()):
-                messages.error(request, "Formoje yra klaidų – žiūrėkite žemiau.")
+            messages.error(request, "Formoje yra klaidų – patikrinkite visus laukus.")
+
         return render(request, self.template_name, {
             'form': form,
             'projektas_form': projektas_form,

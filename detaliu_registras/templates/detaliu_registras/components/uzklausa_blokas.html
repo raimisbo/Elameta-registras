@@ -46,30 +46,7 @@
     <div class="blokas-4">
         <h3>Kainos</h3>
         {% if uzklausa.detale.kainos.all %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Kaina</th>
-                        <th>Būsena</th>
-                        <th>Kiekis</th>
-                        <th>Matas</th>
-                        <th>Nuo</th>
-                        <th>Iki</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for kaina in uzklausa.detale.kainos.all %}
-                    <tr class="{% if kaina.busena == 'aktuali' %}aktualu{% elif kaina.busena == 'sena' %}sena{% endif %}">
-                        <td>{{ kaina.suma }} €</td>
-                        <td>{{ kaina.get_busena_display }}</td>
-                        <td>{{ kaina.fiksuotas_kiekis|default:"—" }}</td>
-                        <td>{{ kaina.get_kainos_matas_display }}</td>
-                        <td>{{ kaina.kiekis_nuo|default:"—" }}</td>
-                        <td>{{ kaina.kiekis_iki|default:"—" }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+           {% include "detaliu_registras/components/kainos_lentele.html" with kainos=uzklausa.detale.kainos.all %}
         {% else %}
             <p>Kainų nėra</p>
         {% endif %}
@@ -94,12 +71,10 @@
         </p>
         <p><strong>Pastabos:</strong> {{ uzklausa.detale.pastabos|default:"—" }}</p>
 
-        <div class="uzklausa-actions">
-            <a href="{% url 'detaliu_registras:uzklausa_detail' uzklausa.pk %}">Peržiūrėti</a>
-            <a href="{% url 'detaliu_registras:kaina_update' uzklausa.pk %}" class="edit-prices">Redaguoti kainas</a>
-        </div>
+        {% include "detaliu_registras/components/uzklausa_actions.html" with uzklausa=uzklausa %}
     </div>
 </div>
+
 <!--"""-->
 
 <!--# Išsaugome failą-->

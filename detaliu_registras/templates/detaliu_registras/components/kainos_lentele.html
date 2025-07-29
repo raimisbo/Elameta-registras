@@ -1,0 +1,24 @@
+ <table>
+                <thead>
+                    <tr>
+                        <th>Kaina</th>
+                        <th>Būsena</th>
+                        <th>Kiekis</th>
+                        <th>Matas</th>
+                        <th>Nuo</th>
+                        <th>Iki</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for kaina in uzklausa.detale.kainos.all %}
+                    <tr class="{% if kaina.busena == 'aktuali' %}aktualu{% elif kaina.busena == 'sena' %}sena{% endif %}">
+                        <td>{{ kaina.suma }} €</td>
+                        <td>{{ kaina.get_busena_display }}</td>
+                        <td>{{ kaina.fiksuotas_kiekis|default:"—" }}</td>
+                        <td>{{ kaina.get_kainos_matas_display }}</td>
+                        <td>{{ kaina.kiekis_nuo|default:"—" }}</td>
+                        <td>{{ kaina.kiekis_iki|default:"—" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>

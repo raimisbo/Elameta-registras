@@ -44,7 +44,7 @@ class UzklausaListView(ListView):
     def get_queryset(self):
         queryset = Uzklausa.objects.select_related(
             'klientas', 'projektas', 'detale'
-        ).all()
+        ).order_by('-id')
 
         query = self.request.GET.get('q', '')
         if query:

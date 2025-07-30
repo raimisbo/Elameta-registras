@@ -1,241 +1,125 @@
 {% extends "detaliu_registras/base.html" %}
 {% load static %}
 
-{% block title %}Redaguoti kainą{% endblock %}
+{% block title %}Atnaujinti kainas{% endblock %}
 
 {% block extra_css %}
 <style>
-    .dynamic-form {
-        border: 1px solid #ddd;
-        margin: 10px 0;
-        padding: 10px;
-        border-radius: 5px;
+    .form-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 30px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
-    .btn-primary {
-        background-color: #007cba;
-        color: white;
-        padding: 8px 16px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    .btn-secondary {
-        background-color: #6c757d;
-        color: white;
-        padding: 8px 16px;
-        text-decoration: none;
-        border-radius: 4px;
-        display: inline-block;
-    }
-
-    .btn-danger {
-        background-color: #dc3545;
-        color: white;
-        padding: 6px 12px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    .errorlist {
-        color: #ba2121;
-        margin: 0;
-        padding-left: 0;
+    .form-container h1 {
+        margin-bottom: 20px;
+        text-align: center;
+        color: #333;
     }
 
     .form-row {
+        display: flex;
+        gap: 10px;
         margin-bottom: 10px;
     }
 
-    .form-row > div {
-        margin-right: 20px;
-        display: inline-block;
+    .form-row input {
+        flex: 1;
+    }
+
+    .submit-btn {
+        background-color: #007BFF;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        display: block;
+        margin: 20px auto 0;
+    }
+
+    .submit-btn:hover {
+        background-color: #0056b3;
+    }
+
+    .add-row {
+        margin-top: 10px;
+        text-align: center;
+    }
+
+    .cancel-link {
+        display: block;
+        text-align: center;
+        margin-top: 15px;
+        color: #6c757d;
+        text-decoration: none;
+    }
+
+    .cancel-link:hover {
+        color: #343a40;
     }
 </style>
 {% endblock %}
 
-{% block content %}
-<h1>Redaguoti kainą</h1>
-
-<p><strong>Klientas:</strong> {{ uzklausa.klientas.vardas }}</p>
-<p><strong>Projekto pavadinimas:</strong> {{ uzklausa.projektas.pavadinimas }}</p>
-<p><strong>Detalės pavadinimas:</strong> {{ uzklausa.detale.pavadinimas }}</p>
-<p><strong>Brėžinio nr:</strong> {{ uzklausa.detale.brezinio_nr }}</p>
-
-<form method="post">
-    {% csrf_token %}
-    <fieldset class="module aligned wide" id="kaina-formset">
-        <h2>Kainos</h2>
-        {{ formset.management_form }}
-        {% for form in formset %}
-            <div class="dynamic-form" id="form-{{ forloop.counter0 }}">
-                <fieldset class="module aligned">
-                    <h3>Kaina #{{ forloop.counter }}</h3>
-
-                    <div class="form-row">
-                        <div>
-                            <label for="{{ form.busena.id_for_label }}">{{ form.busena.label }}:</label>
-                            {{ form.busena }}
-                            {{ form.busena.errors }}
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div>
-                            <label for="{{ form.suma.id_for_label }}">{{ form.suma.label }}:</label>
-                            {{ form.suma }}
-                            {{ form.suma.errors }}
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div>
-                            <label for="{{ form.yra_fiksuota.id_for_label }}">{{ form.yra_fiksuota.label }}:</label>
-                            {{ form.yra_fiksuota }}
-                            {{ form.yra_fiksuota.errors }}
-                        </div>
-                    </div>
-
-                    <div class="form-row quantity-range" {% if form.yra_fiksuota.value %}style="display:none;"{% endif %}>
-                        <div>
-                            <label for="{{ form.kiekis_nuo.id_for_label }}">{{ form.kiekis_nuo.label }}:</label>
-                            {{ form.kiekis_nuo }}
-                            {{ form.kiekis_nuo.errors }}
-                        </div>
-                        <div>
-                            <label for="{{ form.kiekis_iki.id_for_label }}">{{ form.kiekis_iki.label }}:</label>
-                            {{ form.kiekis_iki }}
-                            {{ form.kiekis_iki.errors }}
-                        </div>
-                    </div>
-
-                    <div class="form-row fixed-quantity" {% if not form.yra_fiksuota.value %}style="display:none;"{% endif %}>
-                        <div>
-                            <label for="{{ form.fiksuotas_kiekis.id_for_label }}">{{ form.fiksuotas_kiekis.label }}:</label>
-                            {{ form.fiksuotas_kiekis }}
-                            {{ form.fiksuotas_kiekis.errors }}
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div>
-                            <label for="{{ form.kainos_matas.id_for_label }}">{{ form.kainos_matas.label }}:</label>
-                            {{ form.kainos_matas }}
-                            {{ form.kainos_matas.errors }}
-                        </div>
-                    </div>
-
-                    {% if form.DELETE %}
-                        <div class="form-row">
-                            <div>
-                                {{ form.DELETE }}
-                                <label for="{{ form.DELETE.id_for_label }}">{{ form.DELETE.label }}</label>
-                            </div>
-                        </div>
-                    {% endif %}
-
-                    <div class="form-row">
-                        <button type="button" class="remove-form btn-danger">Pašalinti šią kainą</button>
-                    </div>
-                </fieldset>
-            </div>
-        {% endfor %}
-
-        {% if formset.non_form_errors %}
-            <div class="errors">
-                <ul class="errorlist">
-                    {% for error in formset.non_form_errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        {% endif %}
-
-        <button type="button" id="add-form" class="btn-primary">Pridėti naują kainą</button>
-    </fieldset>
-
-    <div class="submit-row">
-        <button type="submit" class="default">Išsaugoti kainas</button>
-        <a href="{% url 'detaliu_registras:uzklausa_detail' uzklausa.pk %}" class="btn-secondary">Atšaukti</a>
-    </div>
-</form>
-{% endblock %}
-
 {% block extra_js %}
 <script>
-    $(document).ready(function() {
-        var formset = $('#kaina-formset');
-        var totalForms = $('#id_form-TOTAL_FORMS');
-        var addFormButton = $('#add-form');
-        var formCount = parseInt(totalForms.val(), 10);
+    document.addEventListener('DOMContentLoaded', function () {
+        const addButton = document.getElementById('add-row');
+        if (!addButton) return;
 
-        function toggleQuantityFields(checkbox) {
-            var form = checkbox.closest('.dynamic-form');
-            var quantityRange = form.find('.quantity-range');
-            var fixedQuantity = form.find('.fixed-quantity');
-            if (checkbox.is(':checked')) {
-                quantityRange.hide();
-                fixedQuantity.show();
-            } else {
-                quantityRange.show();
-                fixedQuantity.hide();
-            }
-        }
+        const formsetDiv = document.getElementById('formset');
+        const totalForms = document.getElementById('id_form-TOTAL_FORMS');
 
-        formset.find('input[name*="yra_fiksuota"]').each(function() {
-            toggleQuantityFields($(this));
-        });
+        addButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            const currentFormCount = parseInt(totalForms.value);
+            const newForm = formsetDiv.querySelector('.form-row').cloneNode(true);
 
-        formset.on('change', 'input[name*="yra_fiksuota"]', function() {
-            toggleQuantityFields($(this));
-        });
-
-        addFormButton.on('click', function() {
-            var emptyForm = formset.find('.dynamic-form:first').clone(true);
-            var formIndex = formCount;
-
-            emptyForm.find('input, select').each(function() {
-                var name = $(this).attr('name');
-                var id = $(this).attr('id');
-                if (name) $(this).attr('name', name.replace(/-\d+-/, '-' + formIndex + '-'));
-                if (id) $(this).attr('id', id.replace(/-\d+-/, '-' + formIndex + '-'));
-                if ($(this).attr('type') === 'checkbox') {
-                    $(this).prop('checked', false);
-                } else {
-                    $(this).val('');
-                }
+            // Atnaujinti input laukų ID ir name
+            newForm.querySelectorAll('input').forEach(function (input) {
+                const name = input.name.replace(`form-${currentFormCount - 1}`, `form-${currentFormCount}`);
+                const id = input.id.replace(`form-${currentFormCount - 1}`, `form-${currentFormCount}`);
+                input.name = name;
+                input.id = id;
+                input.value = '';
             });
 
-            emptyForm.find('label').each(function() {
-                var forAttr = $(this).attr('for');
-                if (forAttr) $(this).attr('for', forAttr.replace(/-\d+-/, '-' + formIndex + '-'));
-            });
-
-            emptyForm.attr('id', 'form-' + formIndex);
-            emptyForm.find('h3').text('Kaina #' + (formIndex + 1));
-            emptyForm.find('.errorlist').remove();
-            addFormButton.before(emptyForm);
-            formCount++;
-            totalForms.val(formCount);
-
-            var newCheckbox = emptyForm.find('input[name*="yra_fiksuota"]');
-            toggleQuantityFields(newCheckbox);
-        });
-
-        formset.on('click', '.remove-form', function() {
-            var form = $(this).closest('.dynamic-form');
-            var deleteField = form.find('input[name*="DELETE"]');
-            if (deleteField.length) {
-                deleteField.prop('checked', true);
-                form.hide();
-            } else {
-                form.remove();
-                formCount--;
-                totalForms.val(formCount);
-            }
+            formsetDiv.appendChild(newForm);
+            totalForms.value = currentFormCount + 1;
         });
     });
 </script>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Atnaujinti detalių kainas</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        <div id="formset">
+            {% for form in formset %}
+                <div class="form-row">
+                    {% for field in form.visible_fields %}
+                        {{ field }}
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="add-row">
+            <button id="add-row" class="submit-btn" type="button">+ Pridėti eilutę</button>
+        </div>
+
+        <button type="submit" class="submit-btn">Išsaugoti</button>
+    </form>
+
+    <a href="{% url 'detaliu_registras:index' %}" class="cancel-link">← Grįžti</a>
+</div>
 {% endblock %}

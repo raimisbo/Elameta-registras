@@ -38,7 +38,6 @@
         align-items: center;
     }
 
-    /* Tekstiniai laukai ir dropdown */
     .form-row input:not([type="checkbox"]),
     .form-row select {
         flex: 1;
@@ -52,7 +51,6 @@
         background-color: white;
     }
 
-    /* Checkbox atvaizdavimas */
     .form-row input[type="checkbox"] {
         width: auto;
         height: auto;
@@ -127,14 +125,20 @@
         addButton.addEventListener('click', function (e) {
             e.preventDefault();
             const currentFormCount = parseInt(totalForms.value);
-            const newForm = formsetDiv.querySelector('.form-row').cloneNode(true);
+            const newForm = formsetDiv.querySelector('.form-section').cloneNode(true);
 
             newForm.querySelectorAll('input, select').forEach(function (input) {
-                const name = input.name.replace(`form-${currentFormCount - 1}`, `form-${currentFormCount}`);
-                const id = input.id.replace(`form-${currentFormCount - 1}`, `form-${currentFormCount}`);
-                input.name = name;
-                input.id = id;
-                input.value = '';
+                if (input.name && input.id) {
+                    const name = input.name.replace(`form-${currentFormCount - 1}`, `form-${currentFormCount}`);
+                    const id = input.id.replace(`form-${currentFormCount - 1}`, `form-${currentFormCount}`);
+                    input.name = name;
+                    input.id = id;
+                    if (input.type !== 'checkbox') {
+                        input.value = '';
+                    } else {
+                        input.checked = false;
+                    }
+                }
             });
 
             formsetDiv.appendChild(newForm);
@@ -153,20 +157,7 @@
         {{ formset.management_form }}
 
         <div id="formset">
-            {% for form in formset %}
-                <div class="form-section">
-                    <h3>Kaina {{ forloop.counter }}</h3>
-                    <div class="form-row">
-                        {% for field in form.visible_fields %}
-                            <div>
-                                {{ field.label_tag }}
-                                {{ field }}
-                                {{ field.errors }}
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endfor %}
+            {% include "detaliu_registras/components/kainos_formset.html" %}
         </div>
 
         <div class="add-row">

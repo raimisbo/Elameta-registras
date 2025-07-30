@@ -1,0 +1,14 @@
+{% for form in formset %}
+    <div class="form-section">
+        <h3>Kaina {{ forloop.counter }}</h3>
+        <div class="form-row">
+            {% for field in form.visible_fields %}
+                <div>
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endfor %}

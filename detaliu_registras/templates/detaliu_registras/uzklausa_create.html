@@ -30,13 +30,29 @@
     .submit-btn, .cancel-btn {
         padding: 12px 30px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;
     }
-    .submit-btn { background-color: #007BFF; color: white; margin-right: 10px; }
-    .submit-btn:hover { background-color: #0056b3; }
-    .cancel-btn { background-color: #6c757d; color: white; padding: 12px 30px; border: none; border-radius: 5px; font-size: 16px;text-decoration: none; display: inline-block;
+    .submit-btn, .cancel-btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
     cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
     box-sizing: border-box;
+    min-width: 180px; /* pasirenkamas: kad abu būtų panašaus pločio */
     text-align: center;
-    transition: background-color 0.3s ease; }
+    transition: background-color 0.3s ease;
+    }
+    .submit-btn {
+    background-color: #007BFF;
+    color: white;
+    margin-right: 10px;
+    }
+    .submit-btn:hover { background-color: #0056b3; }
+    .cancel-btn {
+    background-color: #6c757d;
+    color: white;
+    }
     .cancel-btn:hover { background-color: #545b62; color: white; }
     .error-message { color: #dc3545; font-size: 14px; margin-top: 5px; }
 </style>

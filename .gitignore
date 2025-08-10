@@ -1,49 +1,24 @@
-# 1. Įrašom / atnaujinam .gitignore
-cat > .gitignore <<'EOF'
-# Python / Django
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
 db.sqlite3
 db.sqlite3-journal
-
-# Virtual environment
 venv/
 .venv/
 ENV/
 env/
 env.bak/
 venv.bak/
-
-# IDE ir editoriai
 .vscode/
 .idea/
-
-# Statiniai ir media (generuojami)
 staticfiles/
 media/
-
-# Sistemos failai
 .DS_Store
 Thumbs.db
-
-# Testų/įrankių
 .coverage
 *.log
 *.pot
 *.mo
-
-# mypy / pytest
 .mypy_cache/
 .pytest_cache/
-EOF
-
-# 2. Išmetam .venv iš Git stebėjimo (nešalinant iš disko)
-git rm -r --cached .venv 2>/dev/null || true
-
-# 3. Pridedam visus pakeitimus (įskaitant naują .gitignore)
-git add .
-
-# 4. Commit
-git commit -m "Švara: pridėtas .gitignore ir pašalintas .venv iš Git stebėjimo"

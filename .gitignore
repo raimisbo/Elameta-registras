@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
-*.sqlite3
+db.sqlite3
 db.sqlite3-journal
 
 # Virtual environment
@@ -14,42 +14,24 @@ env/
 env.bak/
 venv.bak/
 
-# IDE ir editorių aplankai
+# IDE ir editoriai
 .vscode/
 .idea/
 
-# Django statiniai failai ir media
+# Statiniai ir media (generuojami)
 staticfiles/
 media/
-
-# Migracijų cache'ai
-*/migrations/__pycache__/
-*/migrations/*.py[cod]
-# Palikti tik __init__.py
-*/migrations/[0-9][0-9][0-9][0-9]_*.py
 
 # Sistemos failai
 .DS_Store
 Thumbs.db
 
-# Testų ir kitų generuotų failų
+# Testų/įrankių
 .coverage
 *.log
 *.pot
 *.mo
 
-# Local settings
-local_settings.py
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# mypy
+# mypy / pytest
 .mypy_cache/
-
-# Pytest
 .pytest_cache/

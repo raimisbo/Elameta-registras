@@ -1,99 +1,59 @@
 from django import forms
-from .models import Klientas, Projektas, Detale, Kaina, Uzklausa, Danga
+from .models import Klientas, Projektas, Detale, Kaina
 
-class ImportCSVForm(forms.Form):
-    csv_file = forms.FileField(label="CSV failas")
-
-class UzklausaFilterForm(forms.Form):
-    q = forms.CharField(
-        required=False, 
-        label='Ieškoti', 
-        widget=forms.TextInput(attrs={'placeholder': 'Ieškoti...'})
+class UzklausaCreationForm(forms.Form):
+    # Esamas klientas
+    existing_klientas = forms.ModelChoiceField(
+        queryset=Klientas.objects.all(),
+        required=False,
+        label='Esamas klientas'
     )
 
-# Separate forms for each model - proper architecture
-class KlientasForm(forms.ModelForm):
-    class Meta:
-        model = Klientas
-        fields = ['vardas', 'adresas', 'telefonas', 'email']
-        widgets = {
-            'email': forms.EmailInput(),
-        }
+    # Naujo kliento laukai
+    new_klientas_vardas = forms.CharField(required=False, label='Naujo kliento vardas')
+    new_klientas_adresas = forms.CharField(required=False, label='Adresas')
+    new_klientas_telefonas = forms.CharField(required=False, label='Telefonas')
+    new_klientas_email = forms.EmailField(required=False, label='El. paštas')
+
+    # Projekto laukai
+    projektas_pavadinimas = forms.CharField(required=False, label='Projekto pavadinimas')
+    uzklausos_data = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))
+    pasiulymo_data = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))
+
+    # Detalės laukai
+    detale_pavadinimas = forms.CharField(required=False, label='Detalės pavadinimas')
+    detale_brezinio_nr = forms.CharField(required=False, label='Brezinio Nr.')
+    detale_nuotrauka = forms.ImageField(required=False, label='Nuotrauka')
+    detale_nuoroda_pasiulymo = forms.URLField(required=False, label='Nuoroda į pasiūlymą')
+    detale_pastabos = forms.CharField(required=False, widget=forms.Textarea, label='Pastabos')
+    detale_kiekis_menesis = forms.IntegerField(required=False, label='Kiekis per mėnesį')
+    detale_danga = forms.IntegerField(required=False, label='Dangos ID')  # Bus paversta į objektą services sluoksnyje
+
 
 class ProjektasForm(forms.ModelForm):
     class Meta:
         model = Projektas
-        fields = ['klientas', 'pavadinimas', 'uzklausos_data', 'pasiulymo_data']
+        fields = ['pavadinimas', 'uzklausos_data', 'pasiulymo_data']
         widgets = {
             'uzklausos_data': forms.DateInput(attrs={'type': 'date'}),
             'pasiulymo_data': forms.DateInput(attrs={'type': 'date'}),
         }
 
-class DetaleForm(forms.ModelForm):
-    danga = forms.ModelMultipleChoiceField(
-        queryset=Danga.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False,
-        label="Danga"
-    )
 
+class DetaleForm(forms.ModelForm):
     class Meta:
         model = Detale
         fields = [
-            'pavadinimas', 'brezinio_nr', 'plotas', 'svoris',
-            'kiekis_metinis', 'kiekis_menesis', 'kiekis_partijai',
-            'ppap_dokumentai', 'danga', 'standartas', 'kabinimo_tipas',
-            'kabinimas_xyz', 'kiekis_reme', 'faktinis_kiekis_reme',
-            'pakavimas', 'nuoroda_brezinio', 'nuoroda_pasiulymo', 'pastabos'
+            'pavadinimas', 'brezinio_nr', 'nuotrauka', 'nuoroda_pasiulymo',
+            'pastabos', 'kiekis_menesis', 'danga'
         ]
-        widgets = {
-            'ppap_dokumentai': forms.Textarea(attrs={'rows': 3}),
-            'pastabos': forms.Textarea(attrs={'rows': 3}),
-            'faktinis_kiekis_reme': forms.NumberInput(attrs={'value': 0}),
-        }
+
 
 class KainaForm(forms.ModelForm):
     class Meta:
         model = Kaina
-        fields = ['busena', 'suma', 'yra_fiksuota', 'kiekis_nuo', 'kiekis_iki', 
-                 'fiksuotas_kiekis', 'kainos_matas']
-        widgets = {
-            'kiekis_nuo': forms.NumberInput(attrs={'min': 0}),
-            'kiekis_iki': forms.NumberInput(attrs={'min': 0}),
-            'fiksuotas_kiekis': forms.NumberInput(attrs={'value': 100, 'min': 0}),
-        }
+        fields = ['kaina_nuo', 'kaina_iki', 'suma', 'kainos_matas']
 
-    def clean(self):
-        cleaned_data = super().clean()
-        kiekis_nuo = cleaned_data.get('kiekis_nuo')
-        kiekis_iki = cleaned_data.get('kiekis_iki')
-        
-        if kiekis_nuo and kiekis_iki and kiekis_nuo >= kiekis_iki:
-            raise forms.ValidationError("Kiekis 'nuo' turi būti mažesnis nei 'iki'")
-        
-        return cleaned_data
 
-# Composite form for complex creation workflow
-class UzklausaCreationForm(forms.Form):
-    existing_klientas = forms.ModelChoiceField(
-        queryset=Klientas.objects.all(),
-        required=False,
-        label="Pasirinkti esamą klientą"
-    )
-    new_klientas_vardas = forms.CharField(
-        max_length=100,
-        required=False,
-        label="Arba įvesti naują klientą"
-    )
-
-    def clean(self):
-        cleaned_data = super().clean()
-        existing = cleaned_data.get("existing_klientas")
-        new = cleaned_data.get("new_klientas_vardas")
-
-        if not existing and not new:
-            raise forms.ValidationError("Pasirinkite arba įveskite klientą.")
-        if existing and new:
-            raise forms.ValidationError("Pasirinkite tik vieną variantą.")
-
-        return cleaned_data
+class UzklausaFilterForm(forms.Form):
+    q = forms.CharField(required=False, label='Paieška')

@@ -1,39 +1,17 @@
+# detaliu_registras/views.py
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView, DetailView, TemplateView
-from django.db.models import Q, Count
+from django.views.generic import ListView, DetailView, TemplateView, View
 from django.contrib import messages
-from django.urls import reverse_lazy
-from django.forms import formset_factory
-from django.core.exceptions import ValidationError
-import json
-import logging
-
-from .models import Klientas, Detale, Uzklausa, Projektas, Kaina
+from django.db.models import Q
 from .forms import (
-    ImportCSVForm, UzklausaCreationForm, KainaForm,
-    UzklausaFilterForm, DetaleForm, ProjektasForm
+    UzklausaCreationForm, DetaleForm, ProjektasForm,
+    UzklausaFilterForm, KainaForm
 )
+from .models import Uzklausa, Klientas, Kaina
 from .services import UzklausaService
-from .utils import import_csv
-
-logger = logging.getLogger(__name__)
-
 
 class IndexView(TemplateView):
-    template_name = 'index.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        klientu_duomenys = Uzklausa.objects.values(
-            'klientas__vardas', 'klientas__id'
-        ).annotate(kiekis=Count('id'))
-
-        context.update({
-            'uzklausos': Uzklausa.objects.all()[:10],
-            'klientu_duomenys_json': json.dumps(list(klientu_duomenys)),
-        })
-        return context
-
+    template_name = 'detaliu_registras/index.html'
 
 class UzklausaListView(ListView):
     model = Uzklausa
@@ -42,154 +20,97 @@ class UzklausaListView(ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        queryset = Uzklausa.objects.select_related(
-            'klientas', 'projektas', 'detale'
-        ).order_by('-id')
-
-        query = self.request.GET.get('q', '')
-        if query:
-            queryset = queryset.filter(
-                Q(klientas__vardas__icontains=query) |
-                Q(projektas__pavadinimas__icontains=query) |
-                Q(detale__pavadinimas__icontains=query) |
-                Q(detale__brezinio_nr__icontains=query)
+        qs = (
+            Uzklausa.objects
+            .select_related('klientas', 'projektas', 'detale')
+            .all()
+        )
+        q = self.request.GET.get('q', '').strip()
+        if q:
+            qs = qs.filter(
+                Q(klientas__vardas__icontains=q) |
+                Q(projektas__pavadinimas__icontains=q) |
+                Q(detale__pavadinimas__icontains=q) |
+                Q(detale__brezinio_nr__icontains=q)
             )
-        return queryset
+        return qs
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['filter_form'] = UzklausaFilterForm(self.request.GET)
-        return context
-
+        ctx = super().get_context_data(**kwargs)
+        ctx['filter_form'] = UzklausaFilterForm(self.request.GET)
+        return ctx
 
 class UzklausaDetailView(DetailView):
     model = Uzklausa
     template_name = 'detaliu_registras/uzklausa_detail.html'
     context_object_name = 'uzklausa'
 
-    def get_queryset(self):
-        return Uzklausa.objects.select_related(
-            'klientas', 'projektas', 'detale'
-        ).prefetch_related('detale__kainos')
-
-
-class UzklausaCreateView(TemplateView):
+class UzklausaCreateView(View):
     template_name = 'detaliu_registras/uzklausa_create.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = UzklausaCreationForm()
-        context['projektas_form'] = ProjektasForm()
-        context['detale_form'] = DetaleForm()
-        context['kaina_form'] = KainaForm()
-        return context
-
-    def post(self, request):
-        form = UzklausaCreationForm(request.POST)
-        projektas_form = ProjektasForm(request.POST)
-        detale_form = DetaleForm(request.POST)
-        kaina_form = KainaForm(request.POST)
-
-        if all([form.is_valid(), projektas_form.is_valid(), detale_form.is_valid(), kaina_form.is_valid()]):
-            try:
-                uzklausa = UzklausaService.create_full_request(
-                    form.cleaned_data,
-                    projektas_form,
-                    detale_form,
-                    kaina_form
-                )
-                messages.success(request, 'Užklausa sėkmingai sukurta')
-                return redirect('detaliu_registras:uzklausa_detail', pk=uzklausa.pk)
-            except ValidationError as e:
-                messages.error(request, f"Klaida: {e}")
-        else:
-            messages.error(request, "Formoje yra klaidų – patikrinkite visus laukus.")
-
+    def get(self, request):
         return render(request, self.template_name, {
-            'form': form,
-            'projektas_form': projektas_form,
-            'detale_form': detale_form,
-            'kaina_form': kaina_form,
+            'form': UzklausaCreationForm(),
+            'detale_form': DetaleForm(),
+            'projektas_form': ProjektasForm(),
         })
 
+    def post(self, request):
+        form = UzklausaCreationForm(request.POST, request.FILES)
+        if not form.is_valid():
+            messages.error(request, 'Patikrinkite formos laukus.')
+            return render(request, self.template_name, {
+                'form': form,
+                'detale_form': DetaleForm(request.POST, request.FILES),
+                'projektas_form': ProjektasForm(request.POST),
+            })
 
-class KainaUpdateView(TemplateView):
+        uzklausa = UzklausaService.create_draft(form.cleaned_data, request.FILES)
+        messages.success(request, 'Užklausos juodraštis sukurtas.')
+        return redirect('detaliu_registras:uzklausa_detail', pk=uzklausa.pk)
+
+class KainaUpdateView(View):
     template_name = 'detaliu_registras/kaina_update.html'
 
     def get(self, request, uzklausa_pk):
         uzklausa = get_object_or_404(Uzklausa, pk=uzklausa_pk)
-        KainaFormSet = formset_factory(KainaForm, extra=1, can_delete=True)
-
-        initial_data = [
-            {
-                'busena': k.busena,
-                'suma': k.suma,
-                'kiekis_nuo': k.kiekis_nuo,
-                'kiekis_iki': k.kiekis_iki,
-                'fiksuotas_kiekis': k.fiksuotas_kiekis,
-                'kainos_matas': k.kainos_matas
-            }
-            for k in uzklausa.detale.kainos.all()
-        ]
-
-        formset = KainaFormSet(initial=initial_data)
-
-        return render(request, self.template_name, {
-            'formset': formset,
-            'uzklausa': uzklausa,
-        })
+        kaina = Kaina.objects.filter(detale=uzklausa.detale).first()
+        form = KainaForm(instance=kaina) if kaina else KainaForm()
+        return render(request, self.template_name, {'uzklausa': uzklausa, 'form': form})
 
     def post(self, request, uzklausa_pk):
         uzklausa = get_object_or_404(Uzklausa, pk=uzklausa_pk)
-        KainaFormSet = formset_factory(KainaForm, extra=1, can_delete=True)
-        formset = KainaFormSet(request.POST)
+        kaina = Kaina.objects.filter(detale=uzklausa.detale).first()
+        form = KainaForm(request.POST, instance=kaina)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.detale = uzklausa.detale
+            obj.save()
+            messages.success(request, 'Kaina išsaugota.')
+            return redirect('detaliu_registras:uzklausa_detail', pk=uzklausa.pk)
+        return render(request, self.template_name, {'uzklausa': uzklausa, 'form': form})
 
-        if formset.is_valid():
-            UzklausaService.update_prices(uzklausa.detale, formset)
-            messages.success(request, 'Kainos atnaujintos')
-            return redirect('detaliu_registras:uzklausa_detail', pk=uzklausa_pk)
+class KlientoUzklausosView(ListView):
+    template_name = 'detaliu_registras/kliento_uzklausos.html'
+    context_object_name = 'uzklausos'
+    paginate_by = 20
 
-        return render(request, self.template_name, {
-            'formset': formset,
-            'uzklausa': uzklausa,
-        })
+    def get_queryset(self):
+        klientas_id = self.kwargs.get('klientas_id')
+        return (
+            Uzklausa.objects
+            .select_related('klientas', 'projektas', 'detale')
+            .filter(klientas_id=klientas_id)
+        )
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['klientas'] = get_object_or_404(Klientas, id=self.kwargs.get('klientas_id'))
+        return ctx
 
 class ImportCSVView(TemplateView):
     template_name = 'detaliu_registras/import_csv.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = ImportCSVForm()
-        return context
-
     def post(self, request):
-        form = ImportCSVForm(request.POST, request.FILES)
-        if form.is_valid():
-            try:
-                import_csv(form.cleaned_data['csv_file'])
-                messages.success(request, 'CSV failas sėkmingai importuotas')
-                return redirect('admin:index')
-            except Exception as e:
-                logger.error(f"CSV import error: {e}")
-                messages.error(request, 'Klaida importuojant CSV failą')
-
-        return render(request, self.template_name, {'form': form})
-
-
-class KlientoUzklausosView(ListView):
-    model = Uzklausa
-    template_name = 'detaliu_registras/kliento_uzklausos.html'
-    context_object_name = 'uzklausos'
-
-    def get_queryset(self):
-        klientas_id = self.kwargs['klientas_id']
-        return Uzklausa.objects.filter(
-            klientas_id=klientas_id
-        ).select_related('projektas', 'detale')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        klientas_id = self.kwargs['klientas_id']
-        context['klientas'] = get_object_or_404(Klientas, pk=klientas_id)
-        return context
+        messages.info(request, 'CSV importo logika bus suaktyvinta vėliau.')
+        return redirect('detaliu_registras:index')

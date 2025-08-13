@@ -1,9 +1,26 @@
 
-<!--from pathlib import Path-->
 
-<!--# Sukuriame turinį failui uzklausa_blokas.html-->
-<!--template_content = """-->
-<div class="container">
+<!-- START: filtravimo wrapperis -->
+<div class="uzklausa-card {{ uzklausa.kainos_busena|default:'' }}"
+     data-klientas="{{ uzklausa.klientas.vardas|default:'' }}"
+     data-projektas="{{ uzklausa.projektas.pavadinimas|default:'' }}"
+     data-detale="{{ uzklausa.detale.pavadinimas|default:'' }}"
+     data-brezinys="{{ uzklausa.detale.brezinio_nr|default:'' }}"
+     data-uzklausosdata="{{ uzklausa.projektas.uzklausos_data|date:'Y-m-d' }}"
+     data-pasiulymodata="{{ uzklausa.projektas.pasiulymo_data|date:'Y-m-d' }}"
+     data-danga="{% for d in uzklausa.detale.danga.all %}{{ d.pavadinimas }}{% if not forloop.last %}, {% endif %}{% endfor %}"
+     data-standartas="{{ uzklausa.detale.standartas|default:'' }}"
+     data-metinis="{{ uzklausa.detale.kiekis_metinis|default:'' }}"
+     data-menesis="{{ uzklausa.detale.kiekis_menesis|default:'' }}"
+     data-partija="{{ uzklausa.detale.kiekis_partijai|default:'' }}"
+     data-plotas="{{ uzklausa.detale.plotas|default:'' }}"
+     data-svoris="{{ uzklausa.detale.svoris|default:'' }}"
+     data-kabinimotipas="{{ uzklausa.detale.kabinimo_tipas|default:'' }}"
+     data-kabinimasxyz="{{ uzklausa.detale.kabinimas_xyz|default:'' }}"
+     data-kiekisreme="{{ uzklausa.detale.kiekis_reme|default:'' }}"
+     data-faktinisreme="{{ uzklausa.detale.faktinis_kiekis_reme|default:'' }}"
+     data-pastabos="{{ uzklausa.detale.pastabos|default_if_none:'' }}">
+  <div class="container">
     <div class="blokas-1">
         <h3>Pagrindinė informacija</h3>
         <p><strong>Klientas:</strong> {{ uzklausa.klientas.vardas }}</p>
@@ -73,12 +90,8 @@
 
         {% include "detaliu_registras/components/uzklausa_actions.html" with uzklausa=uzklausa %}
     </div>
+  </div> <!-- /.container (vidinis) -->
 </div>
+<!-- END: filtravimo wrapperis -->
 
-<!--"""-->
 
-<!--# Išsaugome failą-->
-<!--output_path = Path("/mnt/data/uzklausa_blokas.html")-->
-<!--output_path.write_text(template_content.strip(), encoding="utf-8")-->
-
-<!--output_path.name-->

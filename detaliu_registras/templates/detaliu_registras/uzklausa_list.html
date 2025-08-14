@@ -208,8 +208,6 @@
     </style>
 </head>
 
-<script src="{% static 'js/uzklausos_filters.js' %}"></script>
-
 <body>
     <div class="header">
         <h1>Peržiūrėti užklausas</h1>
@@ -330,5 +328,9 @@
     <div class="nav-links" style="text-align: center; margin-top: 40px;">
         <a href="{% url 'detaliu_registras:index' %}">Grįžti į pradžios puslapį</a>
     </div>
+
+{% load static %}
+<script src="{% static 'js/uzklausos_filters.js' %}"></script>
+
 </body>
 </html>

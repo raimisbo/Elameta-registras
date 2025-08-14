@@ -4,6 +4,7 @@ from django.db.models import Q, Count
 from django.contrib import messages
 from django.forms import formset_factory
 from django.core.exceptions import ValidationError
+from django.utils.dateparse import parse_date
 import json
 import logging
 
@@ -40,31 +41,119 @@ class IndexView(TemplateView):
         return context
 
 
+# --------- SERVER-SIDE FILTRUOJAMAS SĄRAŠAS ---------
 class UzklausaListView(ListView):
     model = Uzklausa
     template_name = "detaliu_registras/uzklausa_list.html"
     context_object_name = "uzklausos"
-    paginate_by = 20
+    paginate_by = 20  # numatytasis
+
+    def get_paginate_by(self, queryset):
+        per_page = self.request.GET.get("per_page")
+        try:
+            return int(per_page) if per_page else self.paginate_by
+        except (TypeError, ValueError):
+            return self.paginate_by
+
+    @staticmethod
+    def _num(val):
+        """Leidžia '12,5' ir '12.5'; tuščia -> None."""
+        if val is None or val == "":
+            return None
+        try:
+            return float(str(val).replace(",", "."))
+        except ValueError:
+            return None
 
     def get_queryset(self):
-        queryset = Uzklausa.objects.select_related(
-            "klientas", "projektas", "detale"
-        ).order_by("-id")
+        p = self.request.GET
+        used_m2m = False
 
-        query = self.request.GET.get("q", "")
-        if query:
-            queryset = queryset.filter(
-                Q(klientas__vardas__icontains=query)
-                | Q(projektas__pavadinimas__icontains=query)
-                | Q(detale__pavadinimas__icontains=query)
-                | Q(detale__brezinio_nr__icontains=query)
+        qs = (
+            Uzklausa.objects
+            .select_related("klientas", "projektas", "detale")
+            .prefetch_related("detale__danga")
+            .all()
+            .order_by("-id")
+        )
+
+        # Greita laisvo teksto paieška (viršutinis 'q' laukas)
+        q = (p.get("q") or "").strip()
+        if q:
+            qs = qs.filter(
+                Q(klientas__vardas__icontains=q)
+                | Q(projektas__pavadinimas__icontains=q)
+                | Q(detale__pavadinimas__icontains=q)
+                | Q(detale__brezinio_nr__icontains=q)
             )
-        return queryset
+
+        # Tekstiniai filtrai
+        text_map = {
+            "f-klientas": "klientas__vardas__icontains",
+            "f-projektas": "projektas__pavadinimas__icontains",
+            "f-detale": "detale__pavadinimas__icontains",
+            "f-brezinys": "detale__brezinio_nr__icontains",
+            "f-danga": "detale__danga__pavadinimas__icontains",  # M2M
+            "f-standartas": "detale__standartas__icontains",
+            "f-kabinimo-tipas": "detale__kabinimo_tipas__icontains",
+            "f-kabinimas-xyz": "detale__kabinimas_xyz__icontains",
+            "f-pastabos": "detale__pastabos__icontains",
+        }
+        for key, lookup in text_map.items():
+            v = (p.get(key) or "").strip()
+            if v:
+                qs = qs.filter(**{lookup: v})
+                if "__danga__" in lookup:
+                    used_m2m = True
+
+        # Skaičių intervalai
+        ranges = [
+            ("f-metinis", "detale__kiekis_metinis"),
+            ("f-menesis", "detale__kiekis_menesis"),
+            ("f-partija", "detale__kiekis_partijai"),
+            ("f-plotas", "detale__plotas"),
+            ("f-svoris", "detale__svoris"),
+            ("f-reme", "detale__kiekis_reme"),
+            ("f-faktinis", "detale__faktinis_kiekis_reme"),
+        ]
+        for prefix, field in ranges:
+            vmin = self._num(p.get(f"{prefix}-min"))
+            vmax = self._num(p.get(f"{prefix}-max"))
+            if vmin is not None:
+                qs = qs.filter(**{f"{field}__gte": vmin})
+            if vmax is not None:
+                qs = qs.filter(**{f"{field}__lte": vmax})
+
+        # Datos (nuo–iki)
+        d1 = parse_date(p.get("f-uzklausa-from") or "")
+        d2 = parse_date(p.get("f-uzklausa-to") or "")
+        if d1:
+            qs = qs.filter(projektas__uzklausos_data__date__gte=d1)
+        if d2:
+            qs = qs.filter(projektas__uzklausos_data__date__lte=d2)
+
+        d3 = parse_date(p.get("f-pasiulymas-from") or "")
+        d4 = parse_date(p.get("f-pasiulymas-to") or "")
+        if d3:
+            qs = qs.filter(projektas__pasiulymo_data__date__gte=d3)
+        if d4:
+            qs = qs.filter(projektas__pasiulymo_data__date__lte=d4)
+
+        if used_m2m:
+            qs = qs.distinct()
+
+        return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # Išlaikyti aktyvius GET filtrus paginacijoje
+        params = self.request.GET.copy()
+        params.pop("page", None)
+        context["current_querystring"] = params.urlencode()
+        # Jei naudoji filtrų formą – paliekam suderinamumui
         context["filter_form"] = UzklausaFilterForm(self.request.GET)
         return context
+# -----------------------------------------------------
 
 
 class UzklausaDetailView(DetailView):

@@ -5,16 +5,41 @@ __pycache__/
 *.pyd
 *.sqlite3
 db.sqlite3
+
+# Media / Static (naudotojų įkeltos ir generuojamos bylos)
 media/
 staticfiles/
 
-# IDE / env
+# Jei turi "collectstatic" šaltinius
+# (gali palikti /static/ su savo css/js/img, bet ne STATIC_ROOT)
+# static/collected/
+
+# Env / secrets
+.env
+*.env
+.env.*
+
+# Virtualenv
 .venv/
 venv/
-.env
+
+# IDE / Editor
 .idea/
 .vscode/
 *.log
+
+# Unit test / coverage
+.coverage
+htmlcov/
+*.pytest_cache/
+*.tox/
+.mypy_cache/
+
+# Docker
+*.pid
+*.seed
+*.cover
+docker-compose.override.yml
 
 # macOS šiukšlės
 .DS_Store
@@ -22,3 +47,8 @@ venv/
 .LSOverride
 Icon?
 ._*
+
+# Windows šiukšlės
+Thumbs.db
+ehthumbs.db
+Desktop.ini

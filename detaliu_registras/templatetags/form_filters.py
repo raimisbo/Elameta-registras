@@ -4,7 +4,8 @@ from django import template
 
 register = template.Library()
 
-@register.filter(name='add_class')
+
+@register.filter(name="add_class")
 def add_class(field, css_class):
     """
     Prideda CSS klasę prie formos lauko HTML widget'o.

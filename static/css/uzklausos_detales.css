@@ -144,3 +144,10 @@ th {
         grid-template-columns: 1fr;
     }
 }
+
+thead tr.filters th{padding:4px 6px;background:#fff;position:sticky;top:38px;z-index:1}
+thead tr.filters input, thead tr.filters select{width:100%;max-width:14rem}
+thead tr.filters .rng{display:flex;gap:.25rem;align-items:center}
+td,th{vertical-align:middle;white-space:nowrap}
+.cell--clip{overflow:hidden;text-overflow:ellipsis;max-width:36ch}
+

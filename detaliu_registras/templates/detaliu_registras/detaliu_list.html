@@ -1,0 +1,102 @@
+{% extends "detaliu_registras/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+<style>
+  .dt-buttons { margin-bottom: .5rem; }
+  table.dataTable td.dt-right { text-align: right; }
+  .actions-btns button { margin-right: .25rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Detalių registras</h1>
+<p>„Stulpeliai“ leidžia paslėpti/rodyti laukus. Pasirinkimas išsisaugo naršyklėje.</p>
+
+<table id="detales" class="display" width="100%"></table>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
+
+<script>
+(function(){
+  const LS_KEY = 'detales_colvis_v3';
+  const saved = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+  const currency = new Intl.NumberFormat('lt-LT', { style: 'currency', currency: 'EUR' });
+  const fmtDate = v => v ? new Date(v).toLocaleDateString('lt-LT') : '';
+
+  const columns = [
+    {data:'kliento_pavadinimas',  title:'Kliento pavadinimas',  visible: saved.kliento_pavadinimas ?? true},
+    {data:'projekto_pavadinimas', title:'Projekto pavadinimas', visible: saved.projekto_pavadinimas ?? true},
+    {data:'detales_pavadinimas',  title:'Detalės pavadinimas',  visible: saved.detales_pavadinimas ?? true},
+
+    {data:'uzklausos_data', title:'Užklausos data', render:fmtDate, visible: saved.uzklausos_data ?? true},
+    {data:'pasiulymo_data', title:'Pasiūlymo data', render:fmtDate, visible: saved.pasiulymo_data ?? true},
+
+    {data:'brezinio_nr',   title:'Brėžinio nr.',    visible: saved.brezinio_nr ?? true},
+    {data:'kainos_busena', title:'Kainos būsena',   visible: saved.kainos_busena ?? true},
+
+    {data:'detales_kainos_suma', title:'Detalės kainos suma',
+      className:'dt-right',
+      render:(v)=> v!=null ? currency.format(Number(v)) : '',
+      visible: saved.detales_kainos_suma ?? true
+    },
+    {data:'kainos_fiksuotas_kiekis', title:'Kainos fiksuotas kiekis',
+      className:'dt-right',
+      render:(v)=> v!=null ? Number(v).toLocaleString('lt-LT') : '',
+      visible: saved.kainos_fiksuotas_kiekis ?? true
+    },
+    {data:'kainos_matas',  title:'Kainos matas',    visible: saved.kainos_matas ?? true},
+    {data:'kiekis_reme',   title:'Kiekis rėme',
+      className:'dt-right',
+      render:(v)=> v!=null ? Number(v).toLocaleString('lt-LT') : '',
+      visible: saved.kiekis_reme ?? true
+    },
+    {data:'pastabos',      title:'Pastabos',        visible: saved.pastabos ?? false},
+
+    {data:'id', title:'Veiksmai',
+      orderable:false, searchable:false, className:'actions-btns',
+      render:(id)=>(
+        `<button class="btn-edit" data-id="${id}">Redaguoti</button>`+
+        `<button class="btn-del"  data-id="${id}">Trinti</button>`
+      ),
+      visible: saved.veiksmai ?? true
+    },
+  ];
+
+  const table = $('#detales').DataTable({
+    serverSide: true, processing: true,
+    ajax: { url: '/api/detales/?format=datatables', type: 'GET' },
+    columns, order: [[0,'asc']], pageLength: 25, lengthMenu: [25,50,100], deferRender: true,
+    dom: 'Bfrtip', buttons: [{ extend:'colvis', text:'Stulpeliai' }],
+    language: { url: 'https://cdn.datatables.net/plug-ins/1.13.8/i18n/lt.json' }
+  });
+
+  table.on('column-visibility.dt', function(){
+    const vis = {};
+    table.columns().every(function(){ vis[this.dataSrc()] = this.visible(); });
+    localStorage.setItem(LS_KEY, JSON.stringify(vis));
+  });
+
+  // Pavyzdiniai veiksmai (pasikeisk URL'us jei reikia)
+  $('#detales').on('click', '.btn-edit', function(){
+    const id = this.dataset.id;
+    if (id) window.location.href = `/detale/${id}/redaguoti/`;
+  });
+  $('#detales').on('click', '.btn-del', function(){
+    const id = this.dataset.id;
+    if (!id) return;
+    if (confirm('Tikrai ištrinti?')) {
+      fetch(`/api/detales/${id}/`, { method:'DELETE' })
+        .then(()=> table.ajax.reload(null,false));
+    }
+  });
+})();
+</script>
+{% endblock %}

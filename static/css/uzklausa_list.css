@@ -1,0 +1,132 @@
+/* Failas: detaliu_registras/static/css/uzklausa_list.css
+   Pilnas: chip'ai, toolbar, lentelė, filtrai, sticky, density, „Detaliau“ AJAX UI (loading/error), auto tema per JS.
+   Pridėta: .substack (vertikalios eilutės viename stulpelyje) ir .filters-stack (dvigubi datų filtrai vienoje celėje).
+*/
+
+.uzklausos-page{
+  --font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --text:#111827; --muted:#6b7280; --bg:#fff;
+  --line:#e5e7eb; --line-strong:#d1d5db;
+
+  --chip-border:#d1d5db; --chip-bg:#fff; --chip-bg-hover:#f3f4f6;
+  --chip-primary:#2563eb; --chip-primary-text:#fff; --chip-primary-soft:rgba(37,99,235,.10);
+
+  --radius:999px; --radius-card:12px; --pad-y:.35rem; --pad-x:.6rem; --font-sm:.85rem;
+
+  --sticky-left-0:0px; --sticky-left-1:0px; --sticky-right-0:0px;
+
+  font-family: var(--font-family);
+  color: var(--text);
+}
+
+/* Chip’ai */
+.uzklausos-page .chip{
+  display:inline-flex; align-items:center; gap:.35rem;
+  font-size:var(--font-sm); line-height:1.1; padding:var(--pad-y) var(--pad-x);
+  border:1px solid var(--chip-border); border-radius:var(--radius);
+  background:var(--chip-bg); color:var(--text); text-decoration:none; cursor:pointer; user-select:none;
+  transition: background .15s ease, border-color .15s ease, box-shadow .15s ease, color .15s ease;
+}
+.uzklausos-page a.chip{ color: var(--chip-primary); }
+.uzklausos-page .chip:hover{ background: var(--chip-primary-soft); }
+.uzklausos-page .chip--ghost{ background:var(--chip-bg); border-color:var(--chip-border); }
+.uzklausos-page .chip--badge{ padding:.1rem .45rem; font-size:.78rem; color:var(--muted); border-color:var(--line); background:var(--bg); }
+.uzklausos-page .js-group-toggle.is-on{ color: var(--chip-primary); border-color: var(--chip-primary); box-shadow:0 0 0 2px var(--chip-primary-soft); }
+.uzklausos-page .js-fit-toggle.is-active{ color: var(--chip-primary); border-color: var(--chip-primary); box-shadow:0 0 0 2px var(--chip-primary-soft); }
+
+/* Toolbar */
+.uzklausos-page .table-toolbar{ display:flex; gap:12px; align-items:center; margin:8px 0 12px; flex-wrap:wrap; }
+.uzklausos-page .groups{ display:flex; gap:.5rem; align-items:center; }
+
+/* Lentelė */
+.uzklausos-page .table-scroll{ overflow:auto; }
+.uzklausos-page .table{ width:100%; border-collapse:collapse; }
+.uzklausos-page .table thead th{
+  padding:.4rem .5rem; font-weight:600; color:var(--muted);
+  text-transform:uppercase; font-size:.75rem; letter-spacing:.02em;
+  border-bottom:1px solid var(--line-strong); white-space:nowrap; background:var(--bg); position:relative; z-index:2;
+}
+.uzklausos-page .table tbody td{
+  padding:.5rem .5rem; border-bottom:1px solid var(--line); vertical-align:top; font-size:.95rem; color:var(--text); background:var(--bg);
+}
+.uzklausos-page .table .is-num{ text-align:right; }
+.uzklausos-page .table .is-actions{ white-space:nowrap; }
+
+/* Sticky kairė/dešinė (jei naudoji) */
+.uzklausos-page .sticky-left-0{ position:sticky; left:var(--sticky-left-0); z-index:3; background:var(--bg); }
+.uzklausos-page .sticky-left-1{ position:sticky; left:var(--sticky-left-1); z-index:3; background:var(--bg); }
+.uzklausos-page .sticky-left-0::after,
+.uzklausos-page .sticky-left-1::after{ content:""; position:absolute; top:0; right:-1px; width:1px; height:100%; background:var(--line-strong); }
+.uzklausos-page .sticky-right-0{ position:sticky; right:var(--sticky-right-0); z-index:3; background:var(--bg); }
+.uzklausos-page .sticky-right-0::before{ content:""; position:absolute; top:0; left:-1px; width:1px; height:100%; background:var(--line-strong); }
+
+/* Filtrai */
+.uzklausos-page .filters-row th{ padding:.35rem .5rem .5rem; }
+.uzklausos-page .filters-row input[type="text"],
+.uzklausos-page .filters-row input[type="number"],
+.uzklausos-page .filters-row input[type="date"]{
+  width:100%; box-sizing:border-box; height:30px;
+  padding:.2rem .45rem; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--text); outline:none;
+}
+.uzklausos-page .filters-row input:focus{ border-color:var(--line-strong); box-shadow:0 0 0 2px var(--chip-primary-soft); }
+.uzklausos-page .date-range, .uzklausos-page .num-range{ display:flex; gap:.3rem; }
+
+/* ⬇️ Nauja: dviejų eilučių datų filtrai viename stulpelyje */
+.uzklausos-page .filters-stack{ display:grid; grid-template-columns: 1fr; gap:.25rem; }
+.uzklausos-page .filters-stack .row{ display:flex; gap:.25rem; align-items:center; }
+.uzklausos-page .filters-stack .row .label{ min-width:44px; color:var(--muted); font-size:.8rem; }
+
+/* Paslėpta kolona */
+.uzklausos-page .hidden-col{ display:none; }
+
+/* Colmenu */
+.uzklausos-page details.colvis summary{ cursor:pointer; list-style:none; position:relative; padding-right:1.25rem; }
+.uzklausos-page details.colvis summary::marker{ display:none; }
+.uzklausos-page details.colvis summary::after{ content:"▾"; position:absolute; right:.5rem; top:50%; transform:translateY(-45%); opacity:.7; font-size:.9em; }
+.uzklausos-page details.colvis[open] summary::after{ transform:translateY(-45%) rotate(180deg); }
+.uzklausos-page .colvis-panel{
+  background:var(--bg); border:1px solid var(--line); padding:.6rem; margin-top:.45rem;
+  border-radius:var(--radius-card); box-shadow:0 6px 16px rgba(0,0,0,.06); min-width:340px;
+}
+.uzklausos-page .colvis-grid{ display:grid; grid-template-columns: repeat(2, minmax(210px,1fr)); gap:.3rem .9rem; }
+.uzklausos-page .colvis-item{ display:flex; align-items:center; gap:.5rem; }
+.uzklausos-page .colvis-item input[type="checkbox"]{ width:16px; height:16px; }
+.uzklausos-page .colvis-actions{ margin-top:.6rem; display:flex; gap:.5rem; }
+
+/* Row-details AJAX */
+.uzklausos-page tr.row-details td{ background: var(--chip-bg-hover); }
+.uzklausos-page tr.row-details.loading td{ opacity:.85; }
+.uzklausos-page .details-grid{
+  display:grid; grid-template-columns: repeat(5, minmax(180px, 1fr));
+  gap:.5rem .75rem; padding:.6rem .4rem;
+}
+.uzklausos-page .details-grid h4{ margin:.1rem 0 .35rem; font-size:.9rem; color:var(--muted); }
+.uzklausos-page .rd-loading{ display:flex; align-items:center; gap:.5rem; padding:.6rem .4rem; }
+.uzklausos-page .rd-spinner{
+  width:16px; height:16px; border:2px solid var(--line); border-top-color: var(--chip-primary);
+  border-radius:50%; display:inline-block; animation: rdspin .8s linear infinite;
+}
+@keyframes rdspin { to { transform: rotate(360deg); } }
+.uzklausos-page .rd-error{ color:#b91c1c; padding:.6rem .4rem; }
+
+/* ⬇️ Nauja: vertikalus turinys viename langelyje (datos) */
+.uzklausos-page .substack{ display:flex; flex-direction:column; gap:.15rem; }
+.uzklausos-page .substack .subline{ display:flex; align-items:center; gap:.35rem; line-height:1.2; }
+.uzklausos-page .substack .tag{
+  display:inline-block; font-size:.72rem; color:var(--muted);
+  border:1px solid var(--line); border-radius:6px; padding:0 .35rem; background:var(--bg);
+}
+
+/* Density */
+.uzklausos-page.density-compact .table thead th{ padding:.3rem .4rem; font-size:.72rem; }
+.uzklausos-page.density-compact .table tbody td{ padding:.35rem .4rem; font-size:.9rem; }
+
+/* Dark režimo auto (jei projektas tamsus) */
+@media (prefers-color-scheme: dark) {
+  .uzklausos-page[data-theme="auto"]{
+    --text:#e5e7eb; --muted:#9ca3af; --bg:#0b0f14;
+    --line:rgba(255,255,255,.14); --line-strong:rgba(255,255,255,.24);
+    --chip-border:rgba(255,255,255,.24); --chip-bg:rgba(255,255,255,.06); --chip-bg-hover:rgba(255,255,255,.12);
+    --chip-primary-text:#fff;
+  }
+}

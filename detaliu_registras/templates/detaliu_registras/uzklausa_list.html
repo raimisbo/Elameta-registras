@@ -1,336 +1,159 @@
-{% load static %}
+{% extends "detaliu_registras/base.html" %}
+{% load static formatting %}
 
-<!DOCTYPE html>
-<html lang="lt">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peržiūrėti užklausas</title>
-    <style>
-        .sena {
-            background-color: #fff3cd;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .aktualu {
-            background-color: #d4edda;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .mirksintis {
-            color: red;
-            animation: mirksintis 1s step-start 0s infinite;
-        }
-        @keyframes mirksintis {
-            50% {
-                visibility: hidden;
-            }
-        }
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .header {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .header h1 {
-            margin: 0 0 15px 0;
-            color: #333;
-        }
-        .nav-links {
-            margin-bottom: 20px;
-        }
-        .nav-links a {
-            color: #007bff;
-            text-decoration: none;
-            margin-right: 15px;
-            padding: 8px 12px;
-            background: #f8f9fa;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-        .nav-links a:hover {
-            background: #e9ecef;
-        }
-        .search-container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .search-form {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .search-form input[type="text"] {
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            flex: 1;
-        }
-        .search-form input[type="submit"] {
-            padding: 10px 20px;
-            font-size: 16px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .search-form input[type="submit"]:hover {
-            background: #0056b3;
-        }
-        .container {
-            display: grid;
-            grid-template-areas:
-                "blokas-1 blokas-2 blokas-3"
-                "blokas-4 blokas-5 blokas-5";
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: auto auto;
-            gap: 20px;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .blokas-1 { grid-area: blokas-1; }
-        .blokas-2 { grid-area: blokas-2; }
-        .blokas-3 { grid-area: blokas-3; }
-        .blokas-4 { grid-area: blokas-4; }
-        .blokas-5 { grid-area: blokas-5; }
-        
-        .blokas-1, .blokas-2, .blokas-3, .blokas-4, .blokas-5 {
-            border: 1px solid #e9ecef;
-            padding: 15px;
-            border-radius: 6px;
-            background-color: #f8f9fa;
-        }
-        .blokas-1 h3, .blokas-2 h3, .blokas-3 h3, .blokas-4 h3, .blokas-5 h3 {
-            margin-top: 0;
-            color: #495057;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 8px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        table, th, td {
-            border: 1px solid #dee2e6;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-        }
-        .no-results {
-            text-align: center;
-            padding: 40px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            color: #6c757d;
-        }
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 20px 0;
-        }
-        .pagination a, .pagination span {
-            padding: 8px 12px;
-            background: white;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            text-decoration: none;
-            color: #007bff;
-        }
-        .pagination .current {
-            background: #007bff;
-            color: white;
-        }
-        .uzklausa-actions {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #dee2e6;
-        }
-        .uzklausa-actions a {
-            display: inline-block;
-            padding: 6px 12px;
-            background: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            font-size: 14px;
-            margin-right: 10px;
-        }
-        .uzklausa-actions a:hover {
-            background: #0056b3;
-        }
-        .edit-prices {
-            background: #28a745;
-        }
-        .edit-prices:hover {
-            background: #1e7e34;
-        }
-        @media (max-width: 768px) {
-            .container {
-                grid-template-areas:
-                    "blokas-1"
-                    "blokas-2"
-                    "blokas-3"
-                    "blokas-4"
-                    "blokas-5";
-                grid-template-columns: 1fr;
-            }
-            .search-form {
-                flex-direction: column;
-            }
-        }
+{% block title %}Užklausos{% endblock %}
 
-        #filters-panel summary{cursor:pointer;font-weight:600}
-        #filters-panel input,#filters-panel select{padding:8px;border:1px solid #ddd;border-radius:4px}
-    </style>
-</head>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/uzklausa_list.css' %}">
+{% endblock %}
 
-<body>
-    <div class="header">
-        <h1>Peržiūrėti užklausas</h1>
-        <div class="nav-links">
-            <a href="{% url 'detaliu_registras:index' %}">Pradžia</a>
-            <a href="{% url 'detaliu_registras:uzklausa_create' %}">Nauja užklausa</a>
-            <a href="{% url 'detaliu_registras:import_csv' %}">Importuoti CSV</a>
-        </div>
+{% block content %}
+<div class="uzklausos-page density-normal" data-theme="auto">
+  <h1>Užklausos</h1>
+
+  <div class="table-toolbar" role="toolbar" aria-label="Valdikliai">
+    <!-- Grupės (mygtukai sugeneruojami JS pagal <th data-group="...">) -->
+    <div class="groups">
+      <span class="chip chip--badge">Grupės:</span>
+      <!-- JS čia įterps mygtukus -->
     </div>
 
-    <div class="search-container" id="filters-panel">
-  <details open>
-    <summary>Filtrai</summary>
-    <form onsubmit="return false;">
-      <div style="display:grid;grid-template-columns:repeat(4,minmax(200px,1fr));gap:12px;margin-top:12px">
-        <!-- Teksto filtrai -->
-        <input type="text" id="f-klientas"  placeholder="Klientas">
-        <input type="text" id="f-projektas" placeholder="Projektas">
-        <input type="text" id="f-detale"    placeholder="Detalės pavadinimas">
-        <input type="text" id="f-brezinys"  placeholder="Brėžinio nr.">
-        <input type="text" id="f-danga"     placeholder="Danga (pvz., KTL)">
-        <input type="text" id="f-standartas"placeholder="Standartas">
-        <input type="text" id="f-kabinimo-tipas" placeholder="Kabinimo tipas">
-        <input type="text" id="f-kabinimas-xyz"  placeholder="Kabinimas XYZ">
-
-        <!-- Skaičių intervalai -->
-        <input type="number" id="f-metinis-min"  placeholder="Metinis kiekis nuo">
-        <input type="number" id="f-metinis-max"  placeholder="Metinis kiekis iki">
-        <input type="number" id="f-menesis-min"  placeholder="Mėnesinis nuo">
-        <input type="number" id="f-menesis-max"  placeholder="Mėnesinis iki">
-        <input type="number" id="f-partija-min"  placeholder="Partija nuo">
-        <input type="number" id="f-partija-max"  placeholder="Partija iki">
-        <input type="number" id="f-plotas-min"   placeholder="Plotas nuo" step="any">
-        <input type="number" id="f-plotas-max"   placeholder="Plotas iki" step="any">
-        <input type="number" id="f-svoris-min"   placeholder="Svoris nuo" step="any">
-        <input type="number" id="f-svoris-max"   placeholder="Svoris iki" step="any">
-        <input type="number" id="f-reme-min"     placeholder="Kiekis rėme nuo">
-        <input type="number" id="f-reme-max"     placeholder="Kiekis rėme iki">
-        <input type="number" id="f-faktinis-min" placeholder="Faktinis kiekis rėme nuo">
-        <input type="number" id="f-faktinis-max" placeholder="Faktinis kiekis rėme iki">
-
-        <!-- Datų intervalai -->
-        <input type="date" id="f-uzklausa-from" placeholder="Užklausa nuo">
-        <input type="date" id="f-uzklausa-to"   placeholder="Užklausa iki">
-        <input type="date" id="f-pasiulymas-from" placeholder="Pasiūlymas nuo">
-        <input type="date" id="f-pasiulymas-to"   placeholder="Pasiūlymas iki">
-
-        <!-- Pastabos + valdymas -->
-        <input type="text" id="f-pastabos" placeholder="Pastabos">
-        <div style="display:flex;gap:8px;align-items:center">
-          <button type="button" id="f-clear" style="padding:8px 12px">Išvalyti</button>
-          <span id="f-count" style="color:#6c757d"></span>
+    <!-- „Stulpeliai“ meniu (JS sugeneruos varneles) -->
+    <details class="colvis">
+      <summary class="chip chip--ghost">Stulpeliai</summary>
+      <div class="colvis-panel">
+        <div class="colvis-grid js-colvis-grid"></div>
+        <div class="colvis-actions">
+          <button type="button" class="js-col-all chip chip--ghost">Rodyti visus</button>
+          <button type="button" class="js-col-none chip chip--ghost">Slėpti visus</button>
+          <button type="button" class="js-col-default chip chip--ghost">Numatytieji</button>
         </div>
       </div>
-    </form>
-  </details>
-</div>
+    </details>
 
+    <!-- Tankis / Išplėstiniai / Tilpti lange -->
+    <button type="button" class="chip chip--ghost js-density">Tankis: Įprastas</button>
+    <button type="button" class="chip chip--ghost js-toggle-advanced">Išplėstiniai</button>
+    <button type="button" class="chip chip--ghost js-fit-toggle">Tilpti lange</button>
+    <span class="chip chip--badge js-fit-status" style="display:none;"></span>
 
-    <!-- Results count -->
-    {% if uzklausos %}
-        <div class="search-container">
-            <p>Rasta: {{ uzklausos|length }} {% if is_paginated %}(iš {{ paginator.count }}){% endif %} įrašų</p>
-        </div>
-    {% endif %}
+    <!-- Veiksmas -->
+    <a href="{% url 'detaliu_registras:uzklausa_create' %}" class="chip chip--ghost">Įvesti užklausą</a>
+  </div>
 
-    <!-- No results message -->
-    {% if not uzklausos %}
-        <div class="no-results">
-            <h3>Jokių rezultatų nerasta</h3>
-            <p>Pabandykite pakeisti paieškos kriterijus arba <a href="{% url 'detaliu_registras:uzklausa_list' %}">peržiūrėti visas užklausas</a></p>
-        </div>
-    {% endif %}
+  <!-- Filtrai per GET (server-side) -->
+  <form id="filters-form" method="get">
+    <div class="table-scroll">
+      <table class="table table--compact">
+        <thead>
+          <tr>
+            <!-- data-pin="1" – niekada neslėpti; data-priority – autoFit prioritetas (didesnis = slepiamas vėliau) -->
+            <th data-col-index="0" data-group="bendra" data-pin="1" class="sticky-left-0">Klientas</th>
+            <th data-col-index="1" data-group="bendra" data-pin="1" class="sticky-left-1">Projektas</th>
 
-    <!-- Pagination (top) -->
-    {% if is_paginated %}
-        <div class="pagination">
-            {% if page_obj.has_previous %}
-                <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page=1">&laquo; Pirmas</a>
-                <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ page_obj.previous_page_number }}">Ankstesnis</a>
-            {% endif %}
-            
-            <span class="current">
-                Puslapis {{ page_obj.number }} iš {{ page_obj.paginator.num_pages }}
-            </span>
-            
-            {% if page_obj.has_next %}
-                <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ page_obj.next_page_number }}">Kitas</a>
-                <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ page_obj.paginator.num_pages }}">Paskutinis &raquo;</a>
-            {% endif %}
-        </div>
-    {% endif %}
+            <!-- ⬇️ Sujungtas stulpelis „Datos“: Užklausos ir Pasiūlymo datos viena po kitos -->
+            <th data-col-index="2" data-group="bendra" data-priority="3">Datos</th>
 
-    <!-- Užklausos list -->
-    {% for uzklausa in uzklausos %}
-       {% include "detaliu_registras/components/uzklausa_blokas.html" with uzklausa=uzklausa %}
-    {% endfor %}
+            <th data-col-index="3" data-group="specs" data-priority="2">Detalė</th>
+            <th data-col-index="4" data-group="specs" data-priority="3">Brėžinio Nr.</th>
+            <th data-col-index="5" data-group="gamyba" data-advanced="1" data-priority="4" class="is-num">Kiekis/mėn.</th>
+            <th data-col-index="6" data-group="bendra" data-pin="1" class="is-actions sticky-right-0">Veiksmai</th>
+          </tr>
 
-    <!-- Pagination (bottom) -->
-    {% if is_paginated %}
-        <div class="pagination">
-            {% if page_obj.has_previous %}
-                <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page=1">&laquo; Pirmas</a>
-                <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ page_obj.previous_page_number }}">Ankstesnis</a>
-            {% endif %}
-            
-            <span class="current">
-                Puslapis {{ page_obj.number }} iš {{ page_obj.paginator.num_pages }}
-            </span>
-            
-            {% if page_obj.has_next %}
-                <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ page_obj.next_page_number }}">Kitas</a>
-                <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ page_obj.paginator.num_pages }}">Paskutinis &raquo;</a>
-            {% endif %}
-        </div>
-    {% endif %}
+          <tr class="filters-row">
+            <th data-col-index="0" class="sticky-left-0">
+              <input name="f_klientas" class="filter-input" type="text" placeholder="filtruoti..." value="{{ request.GET.f_klientas|default_if_none:'' }}">
+            </th>
+            <th data-col-index="1" class="sticky-left-1">
+              <input name="f_projektas" class="filter-input" type="text" placeholder="filtruoti..." value="{{ request.GET.f_projektas|default_if_none:'' }}">
+            </th>
 
-    <div class="nav-links" style="text-align: center; margin-top: 40px;">
-        <a href="{% url 'detaliu_registras:index' %}">Grįžti į pradžios puslapį</a>
+            <!-- ⬇️ Abu datų intervalai viename filtro stulpelyje -->
+            <th data-col-index="2">
+              <div class="filters-stack">
+                <div class="row">
+                  <span class="label">Užkl.</span>
+                  <input name="f_uzklausos_data_from" class="filter-input" type="date" value="{{ request.GET.f_uzklausos_data_from|default_if_none:'' }}">
+                  <input name="f_uzklausos_data_to"   class="filter-input" type="date" value="{{ request.GET.f_uzklausos_data_to|default_if_none:'' }}">
+                </div>
+                <div class="row">
+                  <span class="label">Pasiūl.</span>
+                  <input name="f_pasiulymo_data_from" class="filter-input" type="date" value="{{ request.GET.f_pasiulymo_data_from|default_if_none:'' }}">
+                  <input name="f_pasiulymo_data_to"   class="filter-input" type="date" value="{{ request.GET.f_pasiulymo_data_to|default_if_none:'' }}">
+                </div>
+              </div>
+            </th>
+
+            <th data-col-index="3"><input name="f_detale" class="filter-input" type="text" placeholder="filtruoti..." value="{{ request.GET.f_detale|default_if_none:'' }}"></th>
+            <th data-col-index="4"><input name="f_brezinio_nr" class="filter-input" type="text" placeholder="filtruoti..." value="{{ request.GET.f_brezinio_nr|default_if_none:'' }}"></th>
+
+            <th data-col-index="5" data-advanced="1">
+              <div class="num-range">
+                <input name="f_kiekis_min" class="filter-input" type="number" min="0" step="1" placeholder="nuo" value="{{ request.GET.f_kiekis_min|default_if_none:'' }}">
+                <input name="f_kiekis_max" class="filter-input" type="number" min="0" step="1" placeholder="iki" value="{{ request.GET.f_kiekis_max|default_if_none:'' }}">
+              </div>
+            </th>
+
+            <th data-col-index="6" class="is-actions sticky-right-0">
+              <button type="submit" class="chip chip--ghost">Filtruoti</button>
+              <a href="." class="chip chip--ghost">Išvalyti</a>
+            </th>
+          </tr>
+        </thead>
+
+        <tbody id="uzklausos-body">
+          {% for uzklausa in uzklausos %}
+          <tr class="data-row" data-pk="{{ uzklausa.pk }}">
+            <td data-col-index="0" class="sticky-left-0">{{ uzklausa.klientas.vardas|default:"-" }}</td>
+            <td data-col-index="1" class="sticky-left-1">{{ uzklausa.projektas.pavadinimas|default:"-" }}</td>
+
+            <!-- ⬇️ Viena po kitos: „Užkl.“ ir „Pasiūl.“ -->
+            <td data-col-index="2">
+              <div class="substack">
+                <div class="subline"><span class="tag">Užkl.</span> {{ uzklausa.projektas.uzklausos_data|date_start|date:"Y-m-d"|default:"-" }}</div>
+                <div class="subline"><span class="tag">Pasiūl.</span> {{ uzklausa.projektas.pasiulymo_data|date_start|date:"Y-m-d"|default:"-" }}</div>
+              </div>
+            </td>
+
+            <td data-col-index="3">{{ uzklausa.detale.pavadinimas|default:"-" }}</td>
+            <td data-col-index="4">{{ uzklausa.detale.brezinio_nr|default:"-" }}</td>
+            <td data-col-index="5" data-advanced="1" class="is-num">{{ uzklausa.detale.kiekis_menesis|default:"-" }}</td>
+
+            <td data-col-index="6" class="is-actions sticky-right-0">
+              <a class="chip chip--ghost" href="{% url 'detaliu_registras:uzklausa_detail' pk=uzklausa.pk %}">Peržiūrėti</a>
+              <!-- svarbu: tavo urls.py tikisi keyword 'uzklausa_pk' -->
+              <a class="chip chip--ghost" href="{% url 'detaliu_registras:kaina_update' uzklausa_pk=uzklausa.pk %}">Kaina</a>
+
+              <!-- AJAX mygtukas „Detaliau“ -->
+              <button type="button"
+                      class="chip chip--ghost js-row-details"
+                      data-details-url="{% url 'detaliu_registras:uzklausa_details' pk=uzklausa.pk %}"
+                      aria-expanded="false">
+                Detaliau
+              </button>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="100">Nėra įrašų</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+  </form>
 
-{% load static %}
-<script src="{% static 'js/uzklausos_filters.js' %}"></script>
+  <div class="pagination pagination--chips">
+    {% if page_obj.has_previous %}
+      <a class="chip chip--ghost" href="?{% if request.GET %}{{ request.GET.urlencode|safe }}&{% endif %}page={{ page_obj.previous_page_number }}">« Atgal</a>
+    {% endif %}
+    <span class="page-info">Puslapis {{ page_obj.number }} iš {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+      <a class="chip chip--ghost" href="?{% if request.GET %}{{ request.GET.urlencode|safe }}&{% endif %}page={{ page_obj.next_page_number }}">Pirmyn »</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
 
-</body>
-</html>
+{% block extra_js %}
+<script src="{% static 'js/colfilters.js' %}"></script>
+{% endblock %}
+

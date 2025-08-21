@@ -1,0 +1,44 @@
+{# Dalinis šablonas grąžinamas per AJAX: VISAS <tr class="row-details"> #}
+<tr class="row-details">
+  <td colspan="100">
+    <div class="details-grid">
+      <div>
+        <h4>Bendra</h4>
+        <div><b>Klientas:</b> {{ uzklausa.klientas.vardas|default:"-" }}</div>
+        <div><b>Projektas:</b> {{ uzklausa.projektas.pavadinimas|default:"-" }}</div>
+        <div><b>Užklausos data:</b> {{ uzklausa.projektas.uzklausos_data|date:"Y-m-d"|default:"-" }}</div>
+      </div>
+
+      <div>
+        <h4>Specifikacija</h4>
+        <div><b>Detalė:</b> {{ uzklausa.detale.pavadinimas|default:"-" }}</div>
+        <div><b>Brėžinio Nr.:</b> {{ uzklausa.detale.brezinio_nr|default:"-" }}</div>
+        <div><b>Medžiaga:</b> {{ uzklausa.detale.medziaga|default:"-" }}</div>
+        <div><b>Matmenys:</b> {{ uzklausa.detale.matmenys|default:"-" }}</div>
+        <div><b>Svoris:</b> {{ uzklausa.detale.svoris|default:"-" }}</div>
+      </div>
+
+      <div>
+        <h4>Kainodara</h4>
+        <div><b>Pasiūlymo data:</b> {{ uzklausa.projektas.pasiulymo_data|date:"Y-m-d"|default:"-" }}</div>
+        <div><b>Pasiūlymo Nr.:</b> {{ uzklausa.projektas.pasiulymo_nr|default:"-" }}</div>
+        <div><b>Vieneto kaina:</b> {{ uzklausa.kaina.vieneto_kaina|default:"-" }}</div>
+        <div><b>Nuolaida:</b> {{ uzklausa.kaina.nuolaida|default:"-" }}</div>
+      </div>
+
+      <div>
+        <h4>Gamyba</h4>
+        <div><b>Kiekis/mėn.:</b> {{ uzklausa.detale.kiekis_menesis|default:"-" }}</div>
+        <div><b>Etapas:</b> {{ uzklausa.projektas.etapas|default:"-" }}</div>
+        <div><b>Terminas:</b> {{ uzklausa.projektas.terminas|date:"Y-m-d"|default:"-" }}</div>
+      </div>
+
+      <div>
+        <h4>Logistika</h4>
+        <div><b>Incoterms:</b> {{ uzklausa.logistika.incoterms|default:"-" }}</div>
+        <div><b>Pristatymas:</b> {{ uzklausa.logistika.pristatymas|default:"-" }}</div>
+        <div><b>Sandėlis:</b> {{ uzklausa.logistika.sandelis|default:"-" }}</div>
+      </div>
+    </div>
+  </td>
+</tr>

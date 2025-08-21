@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import views_ajax  # <- nauja: AJAX vaizdai
 
 app_name = "detaliu_registras"  # Add namespace
 
@@ -25,4 +26,7 @@ urlpatterns = [
 
     # Utilities
     path("import_csv/", views.ImportCSVView.as_view(), name="import_csv"),
+
+    # === AJAX: "Detaliau" po eilute (grąžina <tr class="row-details">) ===
+    path("uzklausos/<int:pk>/detaliau/", views_ajax.uzklausa_details, name="uzklausa_details"),
 ]

@@ -303,3 +303,6 @@ class KlientoUzklausosView(ListView):
         klientas_id = self.kwargs["klientas_id"]
         context["klientas"] = get_object_or_404(Klientas, pk=klientas_id)
         return context
+
+class DetaliuTableView(TemplateView):
+    template_name = "detaliu_registras/detaliu_list.html"

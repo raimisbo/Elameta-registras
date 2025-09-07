@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="lt">
 <head>
@@ -200,8 +202,12 @@
                 flex-direction: column;
             }
         }
+
+        #filters-panel summary{cursor:pointer;font-weight:600}
+        #filters-panel input,#filters-panel select{padding:8px;border:1px solid #ddd;border-radius:4px}
     </style>
 </head>
+
 <body>
     <div class="header">
         <h1>Peržiūrėti užklausas</h1>
@@ -212,18 +218,54 @@
         </div>
     </div>
 
-    <div class="search-container">
-        <form method="GET" action="" class="search-form">
-            <input type="text" name="q" placeholder="Ieškoti pagal klientą, projektą, detalę..." value="{{ request.GET.q }}">
-            <input type="submit" value="Ieškoti">
-            <!-- Hidden fields to preserve current filters -->
-            {% for key, value in request.GET.items %}
-                {% if key != 'q' %}
-                    <input type="hidden" name="{{ key }}" value="{{ value }}">
-                {% endif %}
-            {% endfor %}
-        </form>
-    </div>
+    <div class="search-container" id="filters-panel">
+  <details open>
+    <summary>Filtrai</summary>
+    <form onsubmit="return false;">
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(200px,1fr));gap:12px;margin-top:12px">
+        <!-- Teksto filtrai -->
+        <input type="text" id="f-klientas"  placeholder="Klientas">
+        <input type="text" id="f-projektas" placeholder="Projektas">
+        <input type="text" id="f-detale"    placeholder="Detalės pavadinimas">
+        <input type="text" id="f-brezinys"  placeholder="Brėžinio nr.">
+        <input type="text" id="f-danga"     placeholder="Danga (pvz., KTL)">
+        <input type="text" id="f-standartas"placeholder="Standartas">
+        <input type="text" id="f-kabinimo-tipas" placeholder="Kabinimo tipas">
+        <input type="text" id="f-kabinimas-xyz"  placeholder="Kabinimas XYZ">
+
+        <!-- Skaičių intervalai -->
+        <input type="number" id="f-metinis-min"  placeholder="Metinis kiekis nuo">
+        <input type="number" id="f-metinis-max"  placeholder="Metinis kiekis iki">
+        <input type="number" id="f-menesis-min"  placeholder="Mėnesinis nuo">
+        <input type="number" id="f-menesis-max"  placeholder="Mėnesinis iki">
+        <input type="number" id="f-partija-min"  placeholder="Partija nuo">
+        <input type="number" id="f-partija-max"  placeholder="Partija iki">
+        <input type="number" id="f-plotas-min"   placeholder="Plotas nuo" step="any">
+        <input type="number" id="f-plotas-max"   placeholder="Plotas iki" step="any">
+        <input type="number" id="f-svoris-min"   placeholder="Svoris nuo" step="any">
+        <input type="number" id="f-svoris-max"   placeholder="Svoris iki" step="any">
+        <input type="number" id="f-reme-min"     placeholder="Kiekis rėme nuo">
+        <input type="number" id="f-reme-max"     placeholder="Kiekis rėme iki">
+        <input type="number" id="f-faktinis-min" placeholder="Faktinis kiekis rėme nuo">
+        <input type="number" id="f-faktinis-max" placeholder="Faktinis kiekis rėme iki">
+
+        <!-- Datų intervalai -->
+        <input type="date" id="f-uzklausa-from" placeholder="Užklausa nuo">
+        <input type="date" id="f-uzklausa-to"   placeholder="Užklausa iki">
+        <input type="date" id="f-pasiulymas-from" placeholder="Pasiūlymas nuo">
+        <input type="date" id="f-pasiulymas-to"   placeholder="Pasiūlymas iki">
+
+        <!-- Pastabos + valdymas -->
+        <input type="text" id="f-pastabos" placeholder="Pastabos">
+        <div style="display:flex;gap:8px;align-items:center">
+          <button type="button" id="f-clear" style="padding:8px 12px">Išvalyti</button>
+          <span id="f-count" style="color:#6c757d"></span>
+        </div>
+      </div>
+    </form>
+  </details>
+</div>
+
 
     <!-- Results count -->
     {% if uzklausos %}
@@ -286,5 +328,9 @@
     <div class="nav-links" style="text-align: center; margin-top: 40px;">
         <a href="{% url 'detaliu_registras:index' %}">Grįžti į pradžios puslapį</a>
     </div>
+
+{% load static %}
+<script src="{% static 'js/uzklausos_filters.js' %}"></script>
+
 </body>
 </html>

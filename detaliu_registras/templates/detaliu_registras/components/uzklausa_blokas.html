@@ -1,8 +1,3 @@
-
-<!--from pathlib import Path-->
-
-<!--# Sukuriame turinį failui uzklausa_blokas.html-->
-<!--template_content = """-->
 <div class="container">
     <div class="blokas-1">
         <h3>Pagrindinė informacija</h3>
@@ -23,6 +18,7 @@
                 —
             {% endfor %}
         </p>
+
         <p><strong>Standartas:</strong> {{ uzklausa.detale.standartas|default:"—" }}</p>
         <p><strong>Metinis kiekis:</strong> {{ uzklausa.detale.kiekis_metinis|default:"—" }}</p>
         <p><strong>Mėnesinis kiekis:</strong> {{ uzklausa.detale.kiekis_menesis|default:"—" }}</p>
@@ -31,8 +27,11 @@
 
     <div class="blokas-3">
         <h3>Techniniai parametrai</h3>
+        <p><strong>Ilgis:</strong> {{ uzklausa.detale.ilgis|default:"—" }}</p>
+        <p><strong>Plotis:</strong> {{ uzklausa.detale.plotis|default:"—" }}</p>
         <p><strong>Plotas:</strong> {{ uzklausa.detale.plotas|default:"—" }}</p>
         <p><strong>Svoris:</strong> {{ uzklausa.detale.svoris|default:"—" }}</p>
+        <p><strong>Metalo storis:</strong> {{ uzklausa.detale.metalo_storis|default:"—" }}</p>
         <p><strong>Kabinimo tipas:</strong> {{ uzklausa.detale.kabinimo_tipas|default:"—" }}</p>
         <p><strong>Kabinimas XYZ:</strong> {{ uzklausa.detale.kabinimas_xyz|default:"—" }}</p>
         <p><strong>Kiekis rėme:</strong> {{ uzklausa.detale.kiekis_reme|default:"—" }}</p>
@@ -43,10 +42,11 @@
         </p>
     </div>
 
+
     <div class="blokas-4">
         <h3>Kainos</h3>
         {% if uzklausa.detale.kainos.all %}
-           {% include "detaliu_registras/components/kainos_lentele.html" with kainos=uzklausa.detale.kainos.all %}
+            {% include "detaliu_registras/components/kainos_lentele.html" with kainos=uzklausa.detale.kainos.all %}
         {% else %}
             <p>Kainų nėra</p>
         {% endif %}
@@ -69,16 +69,9 @@
                 —
             {% endif %}
         </p>
+        <p><strong>Nuoroda į pasiūlymą:</strong> {{ uzklausa.detale.nuoroda_i_pasiulyma|default:"—" }}</p>
         <p><strong>Pastabos:</strong> {{ uzklausa.detale.pastabos|default:"—" }}</p>
 
         {% include "detaliu_registras/components/uzklausa_actions.html" with uzklausa=uzklausa %}
     </div>
 </div>
-
-<!--"""-->
-
-<!--# Išsaugome failą-->
-<!--output_path = Path("/mnt/data/uzklausa_blokas.html")-->
-<!--output_path.write_text(template_content.strip(), encoding="utf-8")-->
-
-<!--output_path.name-->

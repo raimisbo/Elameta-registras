@@ -17,21 +17,6 @@
     </div>
 {% rodyti_uzklausa uzklausa %}
 
-            <div class="info-row">
-                <span class="info-label">Nuoroda į pasiūlymą:</span>
-                <span class="info-value">
-                    {% if uzklausa.detale.nuoroda_pasiulymo %}
-                        <a href="{{ uzklausa.detale.nuoroda_pasiulymo }}" target="_blank">Peržiūrėti pasiūlymą</a>
-                    {% else %}
-                        N/A
-                    {% endif %}
-                </span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Pastabos:</span>
-                <span class="info-value">{{ uzklausa.detale.pastabos|default:"N/A" }}</span>
-            </div>
-
             {% if brėžinio_url %}
             <div class="image-container">
                 <p><strong>Brėžinys:</strong></p>
